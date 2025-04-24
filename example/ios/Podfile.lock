@@ -1,0 +1,35 @@
+PODS:
+  - Flutter (1.0.0)
+  - fluttertoast (0.0.2):
+    - Flutter
+    - Toast
+  - luk (0.0.1):
+    - Flutter
+  - Toast (4.0.0)
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
+  - luk (from `.symlinks/plugins/luk/ios`)
+
+SPEC REPOS:
+  trunk:
+    - Toast
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  fluttertoast:
+    :path: ".symlinks/plugins/fluttertoast/ios"
+  luk:
+    :path: ".symlinks/plugins/luk/ios"
+
+SPEC CHECKSUMS:
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  fluttertoast: eaafdac812d1d69931004e881c87a8643b1c9111
+  luk: bded0fa8c4cedacc24fb4ecd71dbf02d6c80307c
+  Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
+
+PODFILE CHECKSUM: ef19549a9bc3046e7bb7d2fab4d021637c0c58a3
+
+COCOAPODS: 1.16.2
