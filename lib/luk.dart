@@ -2,6 +2,7 @@ import 'package:luk/api/i_game_biz_callback.dart';
 import 'package:luk/api/i_game_life_callback.dart';
 import 'package:luk/api/i_game_logger.dart';
 import 'package:luk/api/i_login_callback.dart';
+import 'package:luk/api/i_game_rtc_callback.dart';
 import 'package:luk/bean/game_info.dart';
 
 import 'luk_platform_interface.dart';
@@ -30,6 +31,12 @@ class Luk {
   void setLoginCallback(ILoginCallback callback) {
     LukPlatform.instance.setLoginCallback(callback);
   }
+
+  /// RTC回调
+  void setRTCCallback(IGameRTCCallback callback){
+    LukPlatform.instance.setRTCCallback(callback);
+  }
+
 
   /// sdk初始化
   Future setupSdk({required int appId, required String language, required String area, required bool isProduct}) {

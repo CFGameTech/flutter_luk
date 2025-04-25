@@ -5,6 +5,7 @@ import 'package:luk/luk.dart';
 import 'package:luk_example/api/game_biz_callback.dart';
 import 'package:luk_example/api/game_life_callback.dart';
 import 'package:luk_example/api/game_logger.dart';
+import 'package:luk_example/api/game_rtc_callback.dart';
 import 'package:luk_example/page/game_page.dart';
 import 'package:luk_example/sheet/game_list_sheet.dart';
 
@@ -38,6 +39,8 @@ class _HomePageState extends State<HomePage> {
     Luk.instance.setGameBizCallback(GameBizCallback());
     Luk.instance.setGameLifeCallback(GameLifeCallback());
     Luk.instance.setGameLogger(GameLogger());
+    Luk.instance.setRTCCallback(GameRTCCallback());
+
     // sdk初始化
     await Luk.instance.setupSdk(appId: 1013140, language: "zh_CN", area: "cn", isProduct: true);
     // 用户登录

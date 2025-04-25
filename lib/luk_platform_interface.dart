@@ -2,6 +2,7 @@ import 'package:luk/api/i_game_biz_callback.dart';
 import 'package:luk/api/i_game_life_callback.dart';
 import 'package:luk/api/i_game_logger.dart';
 import 'package:luk/api/i_login_callback.dart';
+import 'package:luk/api/i_game_rtc_callback.dart';
 import 'package:luk/bean/game_info.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -64,4 +65,9 @@ abstract class LukPlatform extends PlatformInterface {
   void setLoginCallback(ILoginCallback callback) {
     throw UnimplementedError('setLoginCallback() has not been implemented.');
   }
+
+  void setRTCCallback(IGameRTCCallback callback) {
+    throw UnimplementedError('setRTCCallback() has not been implemented.');
+  }
+
 }

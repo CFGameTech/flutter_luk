@@ -6,6 +6,7 @@ import 'package:luk/api/i_game_biz_callback.dart';
 import 'package:luk/api/i_game_life_callback.dart';
 import 'package:luk/api/i_game_logger.dart';
 import 'package:luk/api/i_login_callback.dart';
+import 'package:luk/api/i_game_rtc_callback.dart';
 import 'package:luk/bean/game_info.dart';
 import 'package:luk/util/result_util.dart';
 
@@ -21,6 +22,8 @@ class MethodChannelLuk extends LukPlatform {
   IGameLifeCallback? gameLifeCallback;
   IGameLogger? logger;
   ILoginCallback? loginCallback;
+  IGameRTCCallback? rtcCallback;
+
 
   MethodChannelLuk() {
     methodChannel.setMethodCallHandler((call) async {
@@ -125,6 +128,16 @@ class MethodChannelLuk extends LukPlatform {
           var token = call.arguments["token"] as String;
           loginCallback?.onRefreshToken(token);
           break;
+        case "onCFGamePushSelfRTC":
+          var push = call.arguments["push"] as bool;
+          rtcCallback?.onCFGamePushSelfRTC(push);
+          break;
+        case "onCFGamePullOtherRTC":
+          var uid = call.arguments["uid"] as String;
+          var pull = call.arguments["pull"] as bool;
+          rtcCallback?.onCFGamePullOtherRTC(uid,pull);
+          break;
+
       }
       return 0;
     });
@@ -194,4 +207,10 @@ class MethodChannelLuk extends LukPlatform {
   void setLoginCallback(ILoginCallback callback) {
     this.loginCallback = callback;
   }
+
+  @override
+  void setRTCCallback(IGameRTCCallback callback) {
+    this.rtcCallback = callback;
+  }
+
 }

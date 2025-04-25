@@ -310,6 +310,9 @@ extension SwiftLukPlugin: CFGameSDKRTCDelegate {
      */
     public func onCFGamePushSelfRTC(_ push: Bool) -> Bool {
         print("onCFGamePushSelfRTC push:\(push)")
+        let map: [String: Any] = ["push": push]
+        SwiftLukPlugin.channel?.invokeMethod("onCFGamePushSelfRTC", arguments: map)
+
         return true;
     }
     /**
@@ -317,6 +320,9 @@ extension SwiftLukPlugin: CFGameSDKRTCDelegate {
      */
     public func onCFGamePullOtherRTC(_ uid: String, pull: Bool) -> Bool {
         print("onCFGamePullOtherRTC uid:\(uid) pull:\(pull)")
+        let map: [String: Any] = ["uid": uid,"pull": pull]
+        SwiftLukPlugin.channel?.invokeMethod("onCFGamePullOtherRTC", arguments: map)
+
         return true;
     }
 }
