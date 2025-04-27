@@ -11,22 +11,33 @@ object CFBizCallback : ICFBizCallback {
 
     override fun onOpenChargePage() {
         L.info(TAG, "onOpenChargePage()")
+        LukPlugin.callFlutter("onOpenChargePage")
     }
 
     override fun onGetCurrentRoomId(): String {
-        return LukPlatformViewFactory.getCreationRoomId()
+        val roomId = LukPlatformViewFactory.getCreationRoomId()
+        L.info(TAG, "onGetCurrentRoomId(),roomId:$roomId")
+        return roomId
     }
 
     override fun onIsRoomOwner(): Boolean {
-        return LukPlatformViewFactory.isCreationRoomOwner()
+        val isRoomOwner = LukPlatformViewFactory.isCreationRoomOwner()
+        L.info(TAG, "onIsRoomOwner(),isRoomOwner:$isRoomOwner")
+        return isRoomOwner
     }
 
     override fun onWindowSafeArea(): CFGameSDK.CFRect {
-        L.info(TAG, "onWindowSafeArea()")
-        return LukPlatformViewFactory.getWindowSafeArea()
+        val safeArea = LukPlatformViewFactory.getWindowSafeArea()
+        L.info(
+            TAG,
+            "onWindowSafeArea(),left:${safeArea.left},top:${safeArea.top},right:${safeArea.right},bottom:${safeArea.bottom},scaleMinLimit:${safeArea.scaleMinLimit}"
+        )
+        return safeArea
     }
 
     override fun onGamePageClose() {
-        L.info(TAG, "onOpenChargePage()")
+        L.info(TAG, "onGamePageClose()")
+        LukPlugin.callFlutter("onGamePageClose")
+
     }
 }

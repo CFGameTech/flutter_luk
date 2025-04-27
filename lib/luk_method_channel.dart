@@ -135,7 +135,7 @@ class MethodChannelLuk extends LukPlatform {
         case "onCFGamePullOtherRTC":
           var uid = call.arguments["uid"] as String;
           var pull = call.arguments["pull"] as bool;
-          rtcCallback?.onCFGamePullOtherRTC(uid,pull);
+          rtcCallback?.onCFGamePullOtherRTC(uid, pull);
           break;
 
       }

@@ -11,7 +11,7 @@ object CFRTCCallback : ICFRTCCallback {
         L.info(TAG, "onCFGamePushSelfRTC(),p0:$p0")
         val params: HashMap<String, Any> = HashMap()
         params["push"] = p0
-        LukPlugin.callFlutter("onCFGamePushSelfRTC",params)
+        LukPlugin.callFlutter("onCFGamePushSelfRTC", params)
         return true
 
     }
@@ -21,7 +21,7 @@ object CFRTCCallback : ICFRTCCallback {
         val params: HashMap<String, Any> = HashMap()
         params["uid"] = p0 ?: ""
         params["push"] = p1
-        LukPlugin.callFlutter("onCFGamePullOtherRTC",params)
+        LukPlugin.callFlutter("onCFGamePullOtherRTC", params)
         return true
 
     }

@@ -21,6 +21,8 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         lateinit var channel: MethodChannel
         private val handler = Handler(Looper.getMainLooper())
 
+        const val TAG = "LukPlugin"
+
         /**
          * 给flutter发送数据
          */
@@ -74,25 +76,15 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     private fun toDestroyGame() {
-        LukPlatformViewFactory.gameView?.destroy()
-        LukPlatformViewFactory.gameView = null
-        LukPlatformViewFactory.gameInfo = null
-        LukPlatformViewFactory.creationArgs = null
-        LukPlatformViewFactory.gameStatus = GameViewStatus.OnDestroyed
+        LukPlatformViewFactory.onDestroy()
     }
 
     private fun toResumeGame() {
-        if (LukPlatformViewFactory.gameStatus == GameViewStatus.OnPaused) {
-            LukPlatformViewFactory.gameView?.onResume()
-            LukPlatformViewFactory.gameStatus = GameViewStatus.OnResumed
-        }
+        LukPlatformViewFactory.onResume()
     }
 
     private fun toPauseGame() {
-        if (LukPlatformViewFactory.gameStatus == GameViewStatus.OnResumed) {
-            LukPlatformViewFactory.gameView?.onPause()
-            LukPlatformViewFactory.gameStatus = GameViewStatus.OnPaused
-        }
+        LukPlatformViewFactory.onPause()
     }
 
     private fun toGetGameList(result: Result) {

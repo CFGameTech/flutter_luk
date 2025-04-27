@@ -50,11 +50,13 @@ public class LukGameViewFactory : NSObject, FlutterPlatformViewFactory {
        
        if let m = self.gameModel, let v = lukGameView  {
            // 游戏没有变化
-           if m.g_id == gameModel.g_id && m.g_url == gameModel.g_url {
+           if m.g_id == gameModel.g_id && m.g_url == gameModel.g_url && roomId ==self.roomId{
                return v
+           }else{
+               CFGameSDK.finishGameWindow()
            }
        }
-       if left > 0 || top > 0 || right > 0 || bottom > 0 || minScaleLimit > 0{
+       if left > 0 || top > 0 || right > 0 || bottom > 0 || minScaleLimit > 0 {
            self.safeArea = CFGameEdgeInsets.init(top: top, left: left, bottom: bottom, right: right, minScaleLimit: minScaleLimit)
        } else {
            self.safeArea = nil
