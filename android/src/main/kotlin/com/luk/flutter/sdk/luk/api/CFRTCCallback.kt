@@ -20,7 +20,7 @@ object CFRTCCallback : ICFRTCCallback {
         L.info(TAG, "onCFGamePullOtherRTC(),p0:$p0,p1:$p1")
         val params: HashMap<String, Any> = HashMap()
         params["uid"] = p0 ?: ""
-        params["push"] = p1
+        params["pull"] = p1
         LukPlugin.callFlutter("onCFGamePullOtherRTC", params)
         return true
 

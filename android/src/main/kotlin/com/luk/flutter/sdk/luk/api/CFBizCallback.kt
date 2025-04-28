@@ -4,6 +4,7 @@ import com.cftech.gamelibrary.CFGameSDK
 import com.cftech.gamelibrary.CFGameSDK.ICFBizCallback
 import com.luk.flutter.sdk.luk.LukPlatformViewFactory
 import com.luk.flutter.sdk.luk.util.L
+import com.luk.flutter.sdk.luk.LukPlugin
 
 object CFBizCallback : ICFBizCallback {
 
