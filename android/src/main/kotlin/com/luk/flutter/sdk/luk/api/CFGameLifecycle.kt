@@ -78,19 +78,19 @@ object CFGameLifecycle : ICFGameLifecycle {
         LukPlugin.callFlutter("onSeatAvatarTouch", params)
     }
 
-    override fun onGameStateChangeState(state: String, dataJson: String?) {
+    override fun onGameStateChangeState(state: String?, dataJson: String?) {
         L.info(TAG, "onGameStateChangeState(),state:$state,dataJson:$dataJson")
         val params: HashMap<String, Any> = HashMap()
-        params["state"] = state
+        params["state"] = state ?: ""
         params["dataJson"] = dataJson ?: "{}"
         LukPlugin.callFlutter("onGameStateChangeState", params)
     }
 
-    override fun onPlayerStateChangeState(uid: String, state: String, dataJson: String?) {
+    override fun onPlayerStateChangeState(uid: String?, state: String?, dataJson: String?) {
         L.info(TAG, "onPlayerStateChangeState(),uid:$uid,state:$state,dataJson:$dataJson")
         val params: HashMap<String, Any> = HashMap()
-        params["uid"] = uid
-        params["state"] = state
+        params["uid"] = uid ?: ""
+        params["state"] = state ?: ""
         params["dataJson"] = dataJson ?: "{}"
         LukPlugin.callFlutter("onPlayerStateChangeState", params)
     }
@@ -103,11 +103,11 @@ object CFGameLifecycle : ICFGameLifecycle {
         LukPlugin.callFlutter("onGamePurchaseResult", params)
     }
 
-    override fun onGameMusicStartPlay(musicId: Int, musicUrl: String, isLoop: Boolean): Int {
+    override fun onGameMusicStartPlay(musicId: Int, musicUrl: String?, isLoop: Boolean): Int {
         L.info(TAG, "onGameMusicStartPlay(),musicId:$musicId,musicUrl:$musicUrl,isLoop:$isLoop")
         val params: HashMap<String, Any> = HashMap()
         params["musicId"] = musicId
-        params["musicUrl"] = musicUrl
+        params["musicUrl"] = musicUrl ?: ""
         params["isLoop"] = isLoop
         LukPlugin.callFlutter("onGameMusicStartPlay", params)
         return 0
@@ -121,11 +121,11 @@ object CFGameLifecycle : ICFGameLifecycle {
         return 0
     }
 
-    override fun onGameEffectSoundStartPlay(soundId: Int, soundUrl: String, isLoop: Boolean): Int {
+    override fun onGameEffectSoundStartPlay(soundId: Int, soundUrl: String?, isLoop: Boolean): Int {
         L.info(TAG, "onGameEffectSoundStartPlay(),soundId:$soundId,soundUrl:$soundUrl,isLoop:$isLoop")
         val params: HashMap<String, Any> = HashMap()
         params["soundId"] = soundId
-        params["soundUrl"] = soundUrl
+        params["soundUrl"] = soundUrl ?: ""
         params["isLoop"] = isLoop
         LukPlugin.callFlutter("onGameEffectSoundStartPlay", params)
         return 0
