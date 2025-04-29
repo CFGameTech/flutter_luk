@@ -50,9 +50,9 @@ public class LukGameViewFactory : NSObject, FlutterPlatformViewFactory {
        
        if let m = self.gameModel, let v = lukGameView  {
            // 游戏没有变化
-           if m.g_id == gameModel.g_id && m.g_url == gameModel.g_url && roomId ==self.roomId{
+           if m.g_id == gameModel.g_id && m.g_url == gameModel.g_url && roomId == self.roomId{
                return v
-           }else{
+           }else{   //销毁已有的游戏实例重新创建
                CFGameSDK.finishGameWindow()
            }
        }
