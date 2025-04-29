@@ -72,7 +72,11 @@ class _LukGameViewState extends State<LukGameView> {
         surfaceFactory: (context, controller) {
           return AndroidViewSurface(
             controller: controller as AndroidViewController,
-            gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+            gestureRecognizers: const {
+              Factory<OneSequenceGestureRecognizer>(
+                LongPressGestureRecognizer.new,
+              )
+            },
             hitTestBehavior: PlatformViewHitTestBehavior.opaque,
           );
         },
