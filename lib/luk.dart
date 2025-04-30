@@ -4,6 +4,8 @@ import 'package:luk/api/i_game_logger.dart';
 import 'package:luk/api/i_login_callback.dart';
 import 'package:luk/api/i_game_rtc_callback.dart';
 import 'package:luk/bean/game_info.dart';
+import 'package:luk/api/i_preload_game_callback.dart';
+
 
 import 'luk_platform_interface.dart';
 
@@ -67,4 +69,23 @@ class Luk {
   void onDestroy() {
     LukPlatform.instance.onDestroy();
   }
+
+  /// 预加载游戏。
+  /// [gameIdList]需要预加载的游戏id列表
+  /// 加载的结果将通过IPreloadGameCallback回调
+  void preloadGameList(List<int> gameIdList) {
+    LukPlatform.instance.preloadGameList(gameIdList);
+  }
+
+  /// 设置预加载游戏结果回调
+  void setPreloadGameCallback(IPreloadGameCallback callback) {
+    LukPlatform.instance.setPreloadGameCallback(callback);
+  }
+
+  /// 取消预加载。
+  /// [gameIdList]需要取消预加载的游戏id列表
+  void cancelPreloadGame(List<int> gameIdList) {
+    LukPlatform.instance.cancelPreloadGame(gameIdList);
+  }
+
 }

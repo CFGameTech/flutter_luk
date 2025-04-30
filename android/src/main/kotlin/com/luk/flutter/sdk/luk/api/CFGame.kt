@@ -102,4 +102,25 @@ object CFGame {
             CFGameSDK.GameLifecycleApi.setPlayerRole(0)
         }
     }
+
+    fun preloadGameList(gameIdList: List<Long>?) {
+        L.info(TAG, "preloadGameList(),gameIdList size:${gameIdList?.size}")
+
+        if (gameIdList?.isNotEmpty() == true) {
+            var gameid = arrayListOf<Long>()
+            for (i in gameIdList){
+                gameid.add(i.toLong())
+            }
+            CFGameSDK.preloadGameList(gameid, CFGamePreloadCallback)
+        }
+    }
+
+    fun cancelPreloadGame(gameIdList: List<Long>?) {
+        L.info(TAG, "cancelPreloadGame(),gameIdList size:${gameIdList?.size}")
+        if (gameIdList?.isNotEmpty() == true) {
+            CFGameSDK.cancelPreloadGame(gameIdList)
+        }
+    }
+
+
 }

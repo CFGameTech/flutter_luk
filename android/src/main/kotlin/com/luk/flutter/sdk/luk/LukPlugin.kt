@@ -69,6 +69,29 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "onDestroy" -> {    //销毁游戏
                 toDestroyGame()
             }
+
+            "preloadGameList" -> {
+                try {
+                    val data = call.arguments as HashMap<*, *>
+                    val gameIdList = data["gameIdList"] as List<Long>?
+                    CFGame.preloadGameList(gameIdList)
+                } catch (e: Exception) {
+
+                    e.printStackTrace()
+                }
+            }
+
+            "cancelPreloadGame" -> {
+
+                try {
+                    val data = call.arguments as HashMap<*, *>
+                    val gameIdList = data["gameIdList"] as List<Long>?
+                    CFGame.cancelPreloadGame(gameIdList)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+
             else -> {
                 result.notImplemented()
             }

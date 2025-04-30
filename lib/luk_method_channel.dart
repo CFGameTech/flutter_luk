@@ -9,6 +9,8 @@ import 'package:luk/api/i_login_callback.dart';
 import 'package:luk/api/i_game_rtc_callback.dart';
 import 'package:luk/bean/game_info.dart';
 import 'package:luk/util/result_util.dart';
+import 'package:luk/api/i_preload_game_callback.dart';
+
 
 import 'luk_platform_interface.dart';
 
@@ -23,6 +25,7 @@ class MethodChannelLuk extends LukPlatform {
   IGameLogger? logger;
   ILoginCallback? loginCallback;
   IGameRTCCallback? rtcCallback;
+  IPreloadGameCallback? preloadGameCallback;
 
 
   MethodChannelLuk() {
@@ -137,6 +140,11 @@ class MethodChannelLuk extends LukPlatform {
           var pull = call.arguments["pull"] as bool;
           rtcCallback?.onCFGamePullOtherRTC(uid, pull);
           break;
+        case "onPreLoadGameSuccess":
+          var gid = call.arguments["gid"] as String?;
+          var state = call.arguments["state"] as int?;
+          preloadGameCallback?.onPreLoadGameSuccess(gid ?? "", state ?? -1);
+          break;
 
       }
       return 0;
@@ -212,5 +220,25 @@ class MethodChannelLuk extends LukPlatform {
   void setRTCCallback(IGameRTCCallback callback) {
     this.rtcCallback = callback;
   }
+
+  @override
+  void preloadGameList(List<int> gameIdList) {
+    methodChannel.invokeMethod("preloadGameList", {
+      "gameIdList": gameIdList,
+    });
+  }
+
+  @override
+  void setPreloadGameCallback(IPreloadGameCallback callback) {
+    preloadGameCallback = callback;
+  }
+
+  @override
+  void cancelPreloadGame(List<int> gameIdList) {
+    methodChannel.invokeMethod("cancelPreloadGame", {
+      "gameIdList": gameIdList,
+    });
+  }
+
 
 }

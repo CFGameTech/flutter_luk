@@ -5,6 +5,7 @@ import 'package:luk/api/i_login_callback.dart';
 import 'package:luk/api/i_game_rtc_callback.dart';
 import 'package:luk/bean/game_info.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+import 'package:luk/api/i_preload_game_callback.dart';
 
 import 'luk_method_channel.dart';
 
@@ -69,5 +70,18 @@ abstract class LukPlatform extends PlatformInterface {
   void setRTCCallback(IGameRTCCallback callback) {
     throw UnimplementedError('setRTCCallback() has not been implemented.');
   }
+
+  void preloadGameList(List<int> gameIdList) {
+    throw UnimplementedError('preloadGameList() has not been implemented.');
+  }
+
+  void setPreloadGameCallback(IPreloadGameCallback callback) {
+    throw UnimplementedError('setPreloadGameCallback() has not been implemented.');
+  }
+
+  void cancelPreloadGame(List<int> gameIdList) {
+    throw UnimplementedError('cancelPreloadGame() has not been implemented.');
+  }
+
 
 }

@@ -85,6 +85,19 @@ public class SwiftLukPlugin: NSObject, FlutterPlugin {
             SwiftLukPlugin.gameViewFactory?.lukGameView = nil
             SwiftLukPlugin.gameViewFactory?.gameModel = nil
             result(nil)
+        case "preloadGameList":
+             guard let args = call.arguments as? [String: Any],
+                let gameIdList = args["gameIdList"] as? [NSNumber] else {
+                    return
+                }
+             CFGameSDK.preloadGame(withList: gameIdList)
+        case "cancelPreloadGame":
+             guard let args = call.arguments as? [String: Any],
+                 let gameIdList = args["gameIdList"] as? [NSNumber] else {
+                      return
+                 }
+                CFGameSDK.cancelPreloadGame(gameIdList)
+
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -155,6 +168,16 @@ extension SwiftLukPlugin: CFGameSDKDelegate {
     public func onWindowSafeArea() -> CFGameEdgeInsets {
         return SwiftLukPlugin.gameViewFactory?.safeArea ?? CFGameEdgeInsets.init()
     }
+
+    /**
+     * 游戏预加载结果回调
+     */
+    public func onPreLoadGameSuccess(_ gid: Int, gameState state: Int) {
+        let map: [String: Any] = ["gid": gid, "state": state]
+        SwiftLukPlugin.channel?.invokeMethod("onPreLoadGameSuccess", arguments: map)
+    }
+
+
 }
 
 extension SwiftLukPlugin: CFGameLifeCycleDelegate {
