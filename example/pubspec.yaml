@@ -21,12 +21,12 @@ dependencies:
 
 
   luk:
-    git:
-      url: 'https://github.com/CFGameTech/flutter_luk.git'
-      ref: '1.x'
+#    git:
+#      url: 'https://github.com/CFGameTech/flutter_luk.git'
+#      ref: '1.x'
 ## 调试时可使用本地依赖的方式，第三方集成时请勿使用该方式
-#    path:
-#      ../
+    path:
+      ../
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
