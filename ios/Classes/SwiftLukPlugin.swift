@@ -85,6 +85,95 @@ public class SwiftLukPlugin: NSObject, FlutterPlugin {
             SwiftLukPlugin.gameViewFactory?.lukGameView = nil
             SwiftLukPlugin.gameViewFactory?.gameModel = nil
             result(nil)
+        case "refreshUserInfo":
+            CFGameSDK.refreshUserInfo()
+        case "gameStart":
+            CFGameSDK.gameStart()
+        case "playerRemoveWithUid":
+            guard let args = call.arguments as? [String: Any],
+                  let uid = args["uid"] as? String else {
+                return
+            }
+            CFGameSDK.playerRemove(withUid: uid)
+        case "gameBackgroundMusicSet":
+            guard let args = call.arguments as? [String: Any],
+                  let mode = args["mode"] as? Bool else {
+                return
+            }
+            CFGameSDK.gameBackgroundMusicSet(mode)
+        case "gameSoundSet":
+            guard let args = call.arguments as? [String: Any],
+                  let mode = args["mode"] as? Bool else {
+                return
+            }
+            CFGameSDK.gameSoundSet(mode)
+        case "terminateGame":
+            CFGameSDK.terminateGame()
+        case "joinGame":
+            guard let args = call.arguments as? [String: Any],
+                  let position = args["position"] as? Int else {
+                return
+            }
+            CFGameSDK.joinGame(position)
+        case "quitGame":
+            CFGameSDK.quitGame()
+        case "setPlayerRole":
+            guard let args = call.arguments as? [String: Any],
+                  let role = args["role"] as? Int else {
+                return
+            }
+            CFGameSDK.setPlayerRole(role)
+        case "pauseGame":
+            CFGameSDK.gamePause()
+        case "playGame":
+            CFGameSDK.gamePlay()
+        case "preloadGameList":
+            guard let args = call.arguments as? [String: Any],
+                  let gameIdList = args["gameIdList"] as? [NSNumber] else {
+                return
+            }
+            CFGameSDK.preloadGame(withList: gameIdList)
+        case "cancelPreloadGame":
+            guard let args = call.arguments as? [String: Any],
+                  let gameIdList = args["gameIdList"] as? [NSNumber] else {
+                return
+            }
+            CFGameSDK.cancelPreloadGame(gameIdList)
+        case "releaseSDK":
+            CFGameSDK.release()
+        case "sentExtToGame":
+            guard let args = call.arguments as? [String: Any],
+                  let ext = args["ext"] as? String else {
+                return
+            }
+            CFGameSDK.sentExt(toGame: ext)
+        case "showCloseButton":
+            guard let args = call.arguments as? [String: Any],
+                  let isShow = args["isShow"] as? Bool else {
+                return
+            }
+            CFGameSDK.showCloseButton(isShow)
+        case "setLanguage":
+            guard let args = call.arguments as? [String: Any],
+                  let language = args["language"] as? String else {
+                return
+            }
+            CFGameSDK.setLanguage(language)
+        case "gameReload":
+            CFGameSDK.gameReload()
+        case "setGameVoicePath":
+            guard let args = call.arguments as? [String: Any],
+                  let path = args["path"] as? String else {
+                return
+            }
+            CFGameSDK.setGameVoicePath(path)
+        case "appNotifyStateChange":
+            guard let args = call.arguments as? [String: Any],
+                  let state = args["state"] as? String,
+                  let dataJson = args["dataJson"] as? String else {
+                return
+            }
+            CFGameSDK.appNotifyStateChange(state, dataJson: dataJson)
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -154,6 +243,22 @@ extension SwiftLukPlugin: CFGameSDKDelegate {
      */
     public func onWindowSafeArea() -> CFGameEdgeInsets {
         return SwiftLukPlugin.gameViewFactory?.safeArea ?? CFGameEdgeInsets.init()
+    }
+    
+    /**
+     * 游戏预加载结果回调
+     */
+    public func onPreLoadGameSuccess(_ gid: Int, gameState state: GameState) {
+        let map: [String: Any] = ["gid": gid, "state": state]
+        SwiftLukPlugin.channel?.invokeMethod("onPreLoadGameSuccess", arguments: map)
+    }
+    
+    /**
+     * 网络状态
+     */
+    public func reportStatsEvent(_ event: String?, code: Int, msg: String?) {
+        let map: [String: Any] = ["event": event ?? "", "code": code, "msg":msg ?? ""]
+        SwiftLukPlugin.channel?.invokeMethod("onReportStatsEvent", arguments: map)
     }
 }
 
@@ -310,6 +415,8 @@ extension SwiftLukPlugin: CFGameSDKRTCDelegate {
      */
     public func onCFGamePushSelfRTC(_ push: Bool) -> Bool {
         print("onCFGamePushSelfRTC push:\(push)")
+        let map: [String: Any] = ["push": push]
+        SwiftLukPlugin.channel?.invokeMethod("onCFGamePushSelfRTC", arguments: map)
         return true;
     }
     /**
@@ -317,6 +424,8 @@ extension SwiftLukPlugin: CFGameSDKRTCDelegate {
      */
     public func onCFGamePullOtherRTC(_ uid: String, pull: Bool) -> Bool {
         print("onCFGamePullOtherRTC uid:\(uid) pull:\(pull)")
+        let map: [String: Any] = ["uid": uid,"pull": pull]
+        SwiftLukPlugin.channel?.invokeMethod("onCFGamePullOtherRTC", arguments: map)
         return true;
     }
 }

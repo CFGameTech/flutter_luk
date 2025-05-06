@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:luk/bean/game_info.dart';
-import 'package:luk/bean/game_save_area.dart';
+import 'package:luk/bean/game_safe_area.dart';
 import 'package:luk/view/luk_game_controller.dart';
 
 class LukGameView extends StatefulWidget {
@@ -72,7 +72,11 @@ class _LukGameViewState extends State<LukGameView> {
         surfaceFactory: (context, controller) {
           return AndroidViewSurface(
             controller: controller as AndroidViewController,
-            gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+            gestureRecognizers: const {
+              Factory<OneSequenceGestureRecognizer>(
+                LongPressGestureRecognizer.new,
+              )
+            },
             hitTestBehavior: PlatformViewHitTestBehavior.opaque,
           );
         },
