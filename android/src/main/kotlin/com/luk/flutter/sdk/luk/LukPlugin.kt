@@ -54,42 +54,138 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             "setupSdk" -> {    //sdk初始化
                 toSetup(call, result)
             }
+
             "setUserInfo" -> {  //用户登录
                 toLogin(call, result)
             }
+
             "getGameList" -> {  //获取游戏列表
                 toGetGameList(result)
             }
+
             "onPause" -> {  //切换到后台
                 toPauseGame()
             }
+
             "onResume" -> { //回到前台
                 toResumeGame()
             }
+
             "onDestroy" -> {    //销毁游戏
                 toDestroyGame()
+            }
+
+            "refreshUserInfo" -> {
+                CFGame.refreshUserInfo()
+            }
+
+            "gameStart" -> {
+                CFGame.gameStart()
+            }
+
+            "playerRemoveWithUid" -> {
+                val data = call.arguments as HashMap<*, *>
+                val uid = data["uid"] as String?
+                CFGame.playerRemoveWithUid(uid ?: "")
+            }
+
+            "gameBackgroundMusicSet" -> {
+                val data = call.arguments as HashMap<*, *>
+                val mode = data["mode"] as Boolean?
+                CFGame.gameBackgroundMusicSet(mode ?: false)
+            }
+
+            "gameSoundSet" -> {
+                val data = call.arguments as HashMap<*, *>
+                val mode = data["mode"] as Boolean?
+                CFGame.gameSoundSet(mode ?: false)
+            }
+
+            "terminateGame" -> {
+                CFGame.terminateGame()
+            }
+
+            "joinGame" -> {
+                val data = call.arguments as HashMap<*, *>
+                val position = data["position"] as Int?
+                CFGame.joinGame(position ?: 0)
+            }
+
+            "quitGame" -> {
+                CFGame.quitGame()
+            }
+
+            "setPlayerRole" -> {
+                val data = call.arguments as HashMap<*, *>
+                val role = data["role"] as Int?
+                CFGame.setPlayerRole(role == 1)
+            }
+
+            "pauseGame" -> {
+                CFGame.pauseGame()
+            }
+
+            "playGame" -> {
+                CFGame.playGame()
             }
 
             "preloadGameList" -> {
                 try {
                     val data = call.arguments as HashMap<*, *>
-                    val gameIdList = data["gameIdList"] as List<Long>?
+                    val gameIdList = data["gameIdList"] as List<Int>?
                     CFGame.preloadGameList(gameIdList)
                 } catch (e: Exception) {
-
                     e.printStackTrace()
                 }
             }
 
             "cancelPreloadGame" -> {
-
                 try {
                     val data = call.arguments as HashMap<*, *>
-                    val gameIdList = data["gameIdList"] as List<Long>?
+                    val gameIdList = data["gameIdList"] as List<Int>?
                     CFGame.cancelPreloadGame(gameIdList)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
+            }
+
+            "releaseSDK" -> {
+                CFGame.releaseSDK()
+            }
+
+            "sentExtToGame" -> {
+                val data = call.arguments as HashMap<*, *>
+                val ext = data["ext"] as String?
+                CFGame.sentExtToGame(ext)
+            }
+
+            "showCloseButton" -> {
+                val data = call.arguments as HashMap<*, *>
+                val isShow = data["isShow"] as Boolean?
+                CFGame.showCloseButton(isShow ?: false)
+            }
+
+            "setLanguage" -> {
+                val data = call.arguments as HashMap<*, *>
+                val language = data["language"] as String?
+                CFGame.setLanguage(language)
+            }
+
+            "gameReload" -> {
+                CFGame.gameReload()
+            }
+
+            "setGameVoicePath" -> {
+                val data = call.arguments as HashMap<*, *>
+                val path = data["path"] as String?
+                CFGame.setGameVoicePath(path)
+            }
+
+            "appNotifyStateChange" -> {
+                val data = call.arguments as HashMap<*, *>
+                val state = data["state"] as String?
+                val dataJson = data["dataJson"] as String?
+                CFGame.appNotifyStateChange(state, dataJson)
             }
 
             else -> {
