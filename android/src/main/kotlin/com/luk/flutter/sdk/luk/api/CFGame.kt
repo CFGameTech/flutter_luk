@@ -30,7 +30,8 @@ object CFGame {
 //        CFGameSDK.showCloseButton(false)
         //日志输出
         CFGameSDK.setLogger(CFLogger)
-
+        // 网络状态监听
+//        CFGameSDK.setReportStatsEventListener(CFReportStatsEventCallback)
     }
 
     /**
@@ -84,14 +85,6 @@ object CFGame {
     }
 
     /**
-     * 可在游戏准备阶段通过调用此接口将玩家从游戏踢出。
-     */
-    fun removePlayerWithUid(uid: Long) {
-        L.info(TAG, "removePlayerWithUid(),uid:$uid")
-        CFGameSDK.GameLifecycleApi.playerRemoveWithUid("$uid")
-    }
-
-    /**
      * 设置当前用户是否是游戏管理权限拥有者
      */
     fun setPlayerRole(isGameOwner: Boolean) {
@@ -103,22 +96,97 @@ object CFGame {
         }
     }
 
-    fun preloadGameList(gameIdList: List<Long>?) {
-        L.info(TAG, "preloadGameList(),gameIdList size:${gameIdList?.size}")
+    fun refreshUserInfo() {
+        L.info(TAG, "refreshUserInfo")
+        CFGameSDK.refreshUserInfo()
+    }
 
+    fun gameStart() {
+        L.info(TAG, "gameStart")
+        CFGameSDK.GameLifecycleApi.gameStart()
+    }
+
+    fun playerRemoveWithUid(uid: String) {
+        L.info(TAG, "removePlayerWithUid(),uid:$uid")
+        CFGameSDK.GameLifecycleApi.playerRemoveWithUid(uid)
+    }
+
+    fun gameBackgroundMusicSet(mode: Boolean) {
+        L.info(TAG, "gameBackgroundMusicSet(),mode:${mode}")
+        CFGameSDK.GameLifecycleApi.gameBackgroundMusicSet(mode)
+    }
+
+    fun gameSoundSet(mode: Boolean) {
+        L.info(TAG, "gameSoundSet(),mode:${mode}")
+        CFGameSDK.GameLifecycleApi.gameSoundSet(mode)
+    }
+
+    fun pauseGame() {
+        L.info(TAG, "pauseGame()")
+        CFGameSDK.GameLifecycleApi.pauseGame()
+    }
+
+    fun playGame() {
+        L.info(TAG, "playGame()")
+        CFGameSDK.GameLifecycleApi.playGame()
+    }
+
+    fun preloadGameList(gameIdList: List<Int>?) {
+        L.info(TAG, "preloadGameList(),gameIdList size:${gameIdList?.size}")
         if (gameIdList?.isNotEmpty() == true) {
-            var gameid = arrayListOf<Long>()
-            for (i in gameIdList){
-                gameid.add(i.toLong())
-            }
-            CFGameSDK.preloadGameList(gameid, CFGamePreloadCallback)
+            val longList: List<Long> = gameIdList.map { it.toLong() }
+            CFGameSDK.preloadGameList(longList, CFGamePreloadCallback)
         }
     }
 
-    fun cancelPreloadGame(gameIdList: List<Long>?) {
+    fun cancelPreloadGame(gameIdList: List<Int>?) {
         L.info(TAG, "cancelPreloadGame(),gameIdList size:${gameIdList?.size}")
         if (gameIdList?.isNotEmpty() == true) {
-            CFGameSDK.cancelPreloadGame(gameIdList)
+            val longList: List<Long> = gameIdList.map { it.toLong() }
+            CFGameSDK.cancelPreloadGame(longList)
+        }
+    }
+
+    fun releaseSDK() {
+        L.info(TAG, "releaseSDK()")
+        CFGameSDK.releaseSDK()
+    }
+
+    fun sentExtToGame(ext: String?) {
+        L.info(TAG, "sentExtToGame(),ext is not empty? -> ${ext?.isNotEmpty()}")
+        if (ext?.isNotEmpty() == true) {
+            CFGameSDK.sentExtToGame(ext)
+        }
+    }
+
+    fun showCloseButton(isShow: Boolean) {
+        L.info(TAG, "showCloseButton(),isShow:$isShow")
+        CFGameSDK.showCloseButton(isShow)
+    }
+
+    fun setLanguage(language: String?) {
+        L.info(TAG, "setLanguage(),language:$language")
+        if (language?.isNotEmpty() == true) {
+            CFGameSDK.setLanguage(language)
+        }
+    }
+
+    fun gameReload() {
+        L.info(TAG, "gameReload()")
+        CFGameSDK.gameReload()
+    }
+
+    fun setGameVoicePath(path: String?) {
+        L.info(TAG, "setGameVoicePath(),path:$path")
+        if (path?.isNotEmpty() == true) {
+            CFGameSDK.setGameVoicePath(path)
+        }
+    }
+
+    fun appNotifyStateChange(state: String?, dataJson: String?) {
+        L.info(TAG, "appNotifyStateChange(),state:$state,dataJson:$dataJson")
+        if (state?.isNotEmpty() == true) {
+            CFGameSDK.appNotifyStateChange(state, dataJson ?: "{}")
         }
     }
 

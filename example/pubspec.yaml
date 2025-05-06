@@ -21,12 +21,12 @@ dependencies:
 
 
   luk:
-    # When depending on this package from a real application you should use:
-    #   luk: ^x.y.z
-    # See https://dart.dev/tools/pub/dependencies#version-constraints
-    # The example app is bundled with the plugin so we use a path dependency on
-    # the parent directory to use the current plugin's version.
-    path: ../
+#    git:
+#      url: 'https://github.com/CFGameTech/flutter_luk.git'
+#      ref: '1.x'
+## 调试时可使用本地依赖的方式，第三方集成时请勿使用该方式
+    path:
+      ../
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
