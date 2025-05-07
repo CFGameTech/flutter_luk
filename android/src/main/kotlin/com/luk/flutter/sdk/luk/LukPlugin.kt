@@ -17,6 +17,10 @@ import java.lang.ref.WeakReference
 /** LukPlugin */
 class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
+    private val t: Thread = Thread {
+        checkFd()
+    }
+
     companion object {
         lateinit var channel: MethodChannel
         private val handler = Handler(Looper.getMainLooper())
@@ -40,6 +44,16 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     init {
         android.util.Log.i("LUK:$TAG", "version:1.0.7-fix")
+        t.start()
+    }
+
+
+    private fun checkFd() {
+        while (true) {
+            Thread.sleep(10000)
+            val fdList = fdInfo.getfdlist()
+            android.util.Log.i("LUK:$TAG", "fd size:${fdList.size}")
+        }
     }
 
     private var activityRef: WeakReference<Activity>? = null
