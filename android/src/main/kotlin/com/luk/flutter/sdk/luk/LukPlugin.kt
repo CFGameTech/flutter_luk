@@ -38,6 +38,10 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
     }
 
+    init {
+        android.util.Log.i("LUK:$TAG", "version:1.0.7-fix")
+    }
+
     private var activityRef: WeakReference<Activity>? = null
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
