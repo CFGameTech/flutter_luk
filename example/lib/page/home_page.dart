@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:luk/bean/game_info.dart';
 import 'package:luk/luk.dart';
 import 'package:luk_example/api/game_biz_callback.dart';
@@ -103,9 +102,9 @@ class _HomePageState extends State<HomePage> {
         }));
       }
     } else if (_loginSuccess != true) {
-      Fluttertoast.showToast(msg: "未执行登录或登录失败！");
+      // 登录不成功
     } else {
-      Fluttertoast.showToast(msg: "游戏列表为空！");
+      // 未知错误
     }
   }
 }

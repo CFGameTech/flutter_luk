@@ -10,28 +10,29 @@
   luk:
     git:
       url: 'https://github.com/CFGameTech/flutter_luk.git'
-      ref: '1.0.6'
+      ref: '1.0.7'
 ```
 
 ### 1.1、在Android设备上接入luk flutter sdk，还需要进行以下操作：
 
-* （1）将[luk_sdk](./android/luk_sdk)下的文件复制到您的项目的对应路径下（您的flutter工程/android/luk_sdk）；
-* （2）在Android工程的[setting.gradle](./android/settings.gradle#L2)文件中添加以下配置，将原生部分的支持文件添加到工程中：
+* （1）将[cfg_lib_v1.8.0.aar](android/app/libs/cfg_lib_v1.8.0.aar)复制到您的项目的对应路径下（您的flutter工程/android/app/libs）；
+* (2)
+  将原生部分需要的依赖添加依赖到Android工程的主模块（即app模块）的[build.gradle.kts](android/app/build.gradle.kts#44)：
 
 ```groovy
 
-include ':luk_sdk'
+implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
 
 ```
 
-* (3)
-  将原生部分需要的依赖添加依赖到Android工程的主模块（即app模块）的[build.gradle](./android/app/build.gradle#L71)：
+如果使用的不是kts，则参考如下配置：
 
 ```groovy
 
-implementation project(":luk_sdk")
+implementation fileTree(include: ["*.jar", "*.aar"], dir: 'libs')
 
 ```
+
 
 经过以上几个步骤，在安卓设备上运行flutter项目所需要的依赖资源即可准备就绪，不同的环境（主要是flutter的版本、gradle插件的版本、实际项目的环境要求）可能有些许差别，此处仅供参考
 

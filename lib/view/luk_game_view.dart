@@ -67,33 +67,11 @@ class _LukGameViewState extends State<LukGameView> {
       return Container();
     }
     if (Platform.isAndroid) {
-      return PlatformViewLink(
+      return AndroidView(
         viewType: viewType,
-        surfaceFactory: (context, controller) {
-          return AndroidViewSurface(
-            controller: controller as AndroidViewController,
-            gestureRecognizers: const {
-              Factory<OneSequenceGestureRecognizer>(
-                LongPressGestureRecognizer.new,
-              )
-            },
-            hitTestBehavior: PlatformViewHitTestBehavior.opaque,
-          );
-        },
-        onCreatePlatformView: (params) {
-          return PlatformViewsService.initSurfaceAndroidView(
-            id: params.id,
-            viewType: viewType,
-            layoutDirection: TextDirection.ltr,
-            creationParams: creationParams,
-            creationParamsCodec: const StandardMessageCodec(),
-            onFocus: () {
-              params.onFocusChanged(true);
-            },
-          )
-            ..addOnPlatformViewCreatedListener(params.onPlatformViewCreated)
-            ..create();
-        },
+        creationParams: creationParams,
+        creationParamsCodec: const StandardMessageCodec(),
+        onPlatformViewCreated: (id) {},
       );
     } else if (Platform.isIOS) {
       return UiKitView(
