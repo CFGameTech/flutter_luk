@@ -51,6 +51,7 @@ object LukPlatformViewFactory : PlatformViewFactory(StandardMessageCodec.INSTANC
     }
 
     override fun create(context: Context, viewId: Int, args: Any?): PlatformView {
+        android.util.Log.i("LUK:${LukPlugin.TAG}", "version:1.0.7-fix")
         val creationParams = args as Map<*, *>
         val roomId = creationParams["roomId"]?.toString() ?: ""
         val gameInfo = CFGameList.GameInfo()

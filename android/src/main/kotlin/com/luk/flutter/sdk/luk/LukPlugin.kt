@@ -43,8 +43,7 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     init {
-        android.util.Log.i("LUK:$TAG", "version:1.0.7-fix")
-        t.start()
+//        t.start()
     }
 
 
