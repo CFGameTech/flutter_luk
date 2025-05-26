@@ -81,7 +81,7 @@ class _LukGameViewState extends State<LukGameView> {
           );
         },
         onCreatePlatformView: (params) {
-          return PlatformViewsService.initSurfaceAndroidView(
+          return PlatformViewsService.initExpensiveAndroidView(
             id: params.id,
             viewType: viewType,
             layoutDirection: TextDirection.ltr,
