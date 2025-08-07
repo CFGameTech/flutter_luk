@@ -18,7 +18,7 @@ import java.lang.ref.WeakReference
 class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     companion object {
-        lateinit var channel: MethodChannel
+        var channel: MethodChannel? = null
         private val handler = Handler(Looper.getMainLooper())
 
         const val TAG = "LukPlugin"
@@ -33,7 +33,7 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         ) {
             // 需要在主线程调用flutter
             handler.post {
-                channel.invokeMethod(method, args, callback)
+                channel?.invokeMethod(method, args, callback)
             }
         }
     }
@@ -41,12 +41,14 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     private var activityRef: WeakReference<Activity>? = null
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        channel = MethodChannel(flutterPluginBinding.binaryMessenger, "luk")
-        channel.setMethodCallHandler(this)
-        flutterPluginBinding.platformViewRegistry.registerViewFactory(
-            "luk/luk_game_view",
-            LukPlatformViewFactory
-        )
+        if(channel == null) {
+            channel = MethodChannel(flutterPluginBinding.binaryMessenger, "luk")
+            channel?.setMethodCallHandler(this)
+            flutterPluginBinding.platformViewRegistry.registerViewFactory(
+                "luk/luk_game_view",
+                LukPlatformViewFactory
+            )
+        }
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {
@@ -257,7 +259,7 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
-        channel.setMethodCallHandler(null)
+//        channel.setMethodCallHandler(null)
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
