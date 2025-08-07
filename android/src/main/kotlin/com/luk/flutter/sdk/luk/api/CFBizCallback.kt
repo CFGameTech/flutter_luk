@@ -41,4 +41,8 @@ object CFBizCallback : ICFBizCallback {
         LukPlugin.callFlutter("onGamePageClose")
 
     }
+
+    override fun onOpenShopPage(p0: String){
+        L.info(TAG,"onOpenShopPage")
+    }
 }
