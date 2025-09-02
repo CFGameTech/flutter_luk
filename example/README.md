@@ -10,7 +10,7 @@
   luk:
     git:
       url: 'https://github.com/CFGameTech/flutter_luk.git'
-      ref: '1.0.6'
+      ref: '1.0.10'
 ```
 
 ### 1.1、在Android设备上接入luk flutter sdk，还需要进行以下操作：
@@ -30,6 +30,8 @@ include ':luk_sdk'
 ```groovy
 
 implementation project(":luk_sdk")
+Kotlin版本需使用下面方式
+implementation(project(":luk_sdk"))
 
 ```
 

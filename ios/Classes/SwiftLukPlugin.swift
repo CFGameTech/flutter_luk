@@ -260,6 +260,16 @@ extension SwiftLukPlugin: CFGameSDKDelegate {
         let map: [String: Any] = ["event": event ?? "", "code": code, "msg":msg ?? ""]
         SwiftLukPlugin.channel?.invokeMethod("onReportStatsEvent", arguments: map)
     }
+
+    public func onGamePageClose(){
+
+        SwiftLukPlugin.channel?.invokeMethod("onGamePageClose", arguments: nil)
+    }
+
+    public func openChargePage(){
+
+        SwiftLukPlugin.channel?.invokeMethod("onOpenChargePage", arguments: nil)
+    }
 }
 
 extension SwiftLukPlugin: CFGameLifeCycleDelegate {
