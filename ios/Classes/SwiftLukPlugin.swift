@@ -249,7 +249,7 @@ extension SwiftLukPlugin: CFGameSDKDelegate {
      * 游戏预加载结果回调
      */
     public func onPreLoadGameSuccess(_ gid: Int, gameState state: GameState) {
-        let map: [String: Any] = ["gid": gid, "state": state]
+        let map: [String: Any] = ["gid": String(gid), "state": state.rawValue]
         SwiftLukPlugin.channel?.invokeMethod("onPreLoadGameSuccess", arguments: map)
     }
     
@@ -287,7 +287,7 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
         游戏加载完毕
      */
     public func gameDidFinishLoad() {
-        SwiftLukPlugin.channel?.invokeMethod("gameDidFinishLoad", arguments: nil)
+        SwiftLukPlugin.channel?.invokeMethod("onGameDidFinishLoad", arguments: nil)
     }
 
     /**
