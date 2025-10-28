@@ -44,4 +44,8 @@ class GameLifeCallback implements IGameLifeCallback {
 
   @override
   void onPlayerStateChangeState(String uid, String state, String dataJson) {}
+
+  @override
+  void onGameScreenShotBaseData(String base64String, String dataJson) {}
+
 }

@@ -138,4 +138,13 @@ object CFGameLifecycle : ICFGameLifecycle {
         LukPlugin.callFlutter("onGameEffectSoundStopPlay", params)
         return 0
     }
+
+    override fun onGameScreenShotBaseData(base64String: String,dataJson: String?) {
+        L.info(TAG, "onGameScreenShotBaseData(),base64String:$base64String,dataJson:$dataJson")
+        val params: HashMap<String, Any> = HashMap()
+        params["base64String"] = base64String
+        params["dataJson"] = dataJson ?: ""
+        LukPlugin.callFlutter("onGameScreenShotBaseData", params)
+    }
+
 }

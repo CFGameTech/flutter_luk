@@ -273,6 +273,7 @@ extension SwiftLukPlugin: CFGameSDKDelegate {
 }
 
 extension SwiftLukPlugin: CFGameLifeCycleDelegate {
+
     
     /**
      *
@@ -386,6 +387,12 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
         return 0
     }
 
+    public func onGameScreenShotBaseData(_ base64String: String?, dataJson: String?) {
+        let map: [String: Any] = ["base64String": base64String,"dataJson":dataJson]
+        SwiftLukPlugin.channel?.invokeMethod("onGameScreenShotBaseData", arguments: map)
+        
+    }
+    
 
     /**
      *

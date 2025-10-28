@@ -196,6 +196,14 @@ typedef void(^GetGameListFailureBlk)(int code ,NSString * __nonnull msg);
  */
 -(void)onPlayerStateChangeState:(NSString *_Nonnull)uid state:(NSString*_Nonnull)state dataJson:(NSString*_Nullable)dataJson;
 
+
+/***
+ *
+ *     游戏截图回调接口
+ **/
+- (void)onGameScreenShotBaseData:(NSString *_Nullable)base64String dataJson:(NSString *_Nullable)dataJson;
+
+
 @end
 
 

@@ -42,9 +42,9 @@ class _HomePageState extends State<HomePage> {
     Luk.instance.setRTCCallback(GameRTCCallback());
 
     // sdk初始化
-    await Luk.instance.setupSdk(appId: 1013140, language: "zh_CN", area: "cn", isProduct: true);
+    await Luk.instance.setupSdk(appId: 1002401, language: "zh_CN", area: "cn", isProduct: false);
     // 用户登录
-    _loginSuccess = await Luk.instance.setUserInfo(uid: "123456", verifyCode: "");
+    _loginSuccess = await Luk.instance.setUserInfo(uid: "123256", verifyCode: "");
     setState(() {});
     // 获取游戏列表
     List<GameInfo> list = await Luk.instance.getGameList();
