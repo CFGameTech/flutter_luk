@@ -12,11 +12,14 @@ import 'package:luk/view/luk_game_controller.dart';
 class LukGameView extends StatefulWidget {
   final LukGameController controller;
   final GameSafeArea gameSafeArea;
+  Size gameWindowSize;
 
-  const LukGameView(
+   LukGameView(
       {super.key,
       required this.controller,
-      this.gameSafeArea = const GameSafeArea(left: 0, top: 0, right: 0, bottom: 0, scaleMinLimit: 0.0)});
+      required this.gameWindowSize,
+      this.gameSafeArea = const GameSafeArea(left: 0, top: 0, right: 0, bottom: 0, scaleMinLimit: 0.0)
+       });
 
   @override
   State<StatefulWidget> createState() {
@@ -48,6 +51,8 @@ class _LukGameViewState extends State<LukGameView> {
       creationParams["right"] = widget.gameSafeArea.right;
       creationParams["bottom"] = widget.gameSafeArea.bottom;
       creationParams["scaleMinLimit"] = widget.gameSafeArea.scaleMinLimit;
+      creationParams["height"] = widget.gameWindowSize.height;
+      creationParams["width"] = widget.gameWindowSize.width;
       if (widget.controller.initGameInfo != null) {}
       var gameInfo = initGameInfo.toMap();
       for (String key in gameInfo.keys) {

@@ -42,7 +42,7 @@ class _GamePageState extends State<GamePage> {
       body: Stack(
         children: [
           LukGameView(
-            controller: _gameController,
+            controller: _gameController, gameWindowSize: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height),
           ),
           Positioned(
               top: 50,
