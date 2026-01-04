@@ -64,6 +64,14 @@ typedef void(^GetGameListFailureBlk)(int code ,NSString * __nonnull msg);
 - (void)openChargePage;
 
 /**
+    打开商城回调
+ */
+- (void)openPlatformPage:(NSString *_Nonnull)path data:(NSString *_Nullable)data;
+
+
+
+
+/**
  *  游戏预加载成功返回游戏id
  */
 - (void)onPreLoadGameSuccess:(NSInteger)gid gameState:(GameState)state;

@@ -270,6 +270,12 @@ extension SwiftLukPlugin: CFGameSDKDelegate {
 
         SwiftLukPlugin.channel?.invokeMethod("onOpenChargePage", arguments: nil)
     }
+
+    public func openPlatformPage(_ path: String?, data: String?) {
+        let map: [String: Any] = ["path": path ?? "","data": path ?? ""]
+        SwiftLukPlugin.channel?.invokeMethod("onGamePrepare", arguments: map)
+    }
+
 }
 
 extension SwiftLukPlugin: CFGameLifeCycleDelegate {
