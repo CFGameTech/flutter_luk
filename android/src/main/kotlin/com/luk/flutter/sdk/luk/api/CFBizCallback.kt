@@ -50,4 +50,9 @@ object CFBizCallback : ICFBizCallback {
         LukPlugin.callFlutter("openPlatformPage",params)
     }
 
+
+    override fun onGetGameConfig(p0: String?): String {
+        return ""
+    }
+
 }
