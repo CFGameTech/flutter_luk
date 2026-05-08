@@ -86,7 +86,7 @@ object CFGameLifecycle : ICFGameLifecycle {
         LukPlugin.callFlutter("onGameStateChangeState", params)
     }
 
-    override fun onPlayerStateChangeState(uid: String?, state: String?, dataJson: String?) {
+    override fun onPlayerStateChangeState(state: String?, uid: String?,  dataJson: String?) {
         L.info(TAG, "onPlayerStateChangeState(),uid:$uid,state:$state,dataJson:$dataJson")
         val params: HashMap<String, Any> = HashMap()
         params["uid"] = uid ?: ""
@@ -94,6 +94,7 @@ object CFGameLifecycle : ICFGameLifecycle {
         params["dataJson"] = dataJson ?: "{}"
         LukPlugin.callFlutter("onPlayerStateChangeState", params)
     }
+
 
     override fun onGamePurchaseResult(p0: Int, p1: String?) {
         L.info(TAG, "onGamePurchaseResult(),code:$p0,orderId:$p1")
