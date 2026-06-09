@@ -10,7 +10,7 @@
   luk:
     git:
       url: 'https://github.com/CFGameTech/flutter_luk.git'
-      ref: '1.0.10'
+      ref: '1.0.16'
 ```
 
 ### 1.1、在Android设备上接入luk flutter sdk，还需要进行以下操作：
