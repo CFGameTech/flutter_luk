@@ -13,15 +13,20 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.lang.ref.WeakReference
-
+import java.util.concurrent.atomic.AtomicBoolean
 /** LukPlugin */
 class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
+    private var channel: MethodChannel? = null
+    private var activityRef: WeakReference<Activity>? = null
+    private var isInitialized = AtomicBoolean(false)
+
     companion object {
-        var channel: MethodChannel? = null
-        private val handler = Handler(Looper.getMainLooper())
 
         const val TAG = "LukPlugin"
+
+        private var instanceRef: WeakReference<LukPlugin>? = null
+        private val handler = Handler(Looper.getMainLooper())
 
         /**
          * 给flutter发送数据
@@ -33,17 +38,23 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         ) {
             // 需要在主线程调用flutter
             handler.post {
-                channel?.invokeMethod(method, args, callback)
+                val plugin = instanceRef?.get()
+                if (plugin != null && plugin.channel != null) {
+                    plugin.channel?.invokeMethod(method, args, callback)
+                } else {
+                }
             }
         }
     }
 
-    private var activityRef: WeakReference<Activity>? = null
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        if(channel == null) {
+
+        if(!isInitialized.getAndSet(true)) {
             channel = MethodChannel(flutterPluginBinding.binaryMessenger, "luk")
             channel?.setMethodCallHandler(this)
+            instanceRef =  WeakReference(this)
+
             flutterPluginBinding.platformViewRegistry.registerViewFactory(
                 "luk/luk_game_view",
                 LukPlatformViewFactory
@@ -53,44 +64,29 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
-            "setupSdk" -> {    //sdk初始化
-                toSetup(call, result)
-            }
-
-            "setUserInfo" -> {  //用户登录
-                toLogin(call, result)
-            }
-
-            "getGameList" -> {  //获取游戏列表
-                toGetGameList(result)
-            }
-
-            "onPause" -> {  //切换到后台
-                toPauseGame()
-            }
-
-            "onResume" -> { //回到前台
-                toResumeGame()
-            }
-
-            "onDestroy" -> {    //销毁游戏
-                toDestroyGame()
-            }
-
-            "refreshUserInfo" -> {
-                CFGame.refreshUserInfo()
-            }
-
-            "gameStart" -> {
-                CFGame.gameStart()
-            }
-
+            //sdk初始化
+            "setupSdk" -> {    toSetup(call, result)    }
+            //用户登录
+            "setUserInfo" -> {  toLogin(call, result)   }
+            //获取游戏列表
+            "getGameList" -> {  toGetGameList(result)   }
+            //切换到后台
+            "onPause" -> {  toPauseGame()   }
+            //回到前台
+            "onResume" -> {  toResumeGame()  }
+            //销毁游戏
+            "onDestroy" -> {    toDestroyGame() }
+            //刷新用户数据
+            "refreshUserInfo" -> {  CFGame.refreshUserInfo()    }
+            //开始游戏
+            "gameStart" -> {    CFGame.gameStart()  }
+            //踢人
             "playerRemoveWithUid" -> {
                 val data = call.arguments as HashMap<*, *>
                 val uid = data["uid"] as String?
                 CFGame.playerRemoveWithUid(uid ?: "")
             }
-
+            //设置背景音乐
             "gameBackgroundMusicSet" -> {
                 val data = call.arguments as HashMap<*, *>
                 val mode = data["mode"] as Boolean?
@@ -260,6 +256,10 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
 //        channel.setMethodCallHandler(null)
+//        channel?.setMethodCallHandler(null)
+//        channel = null
+//        instanceRef?.clear()
+//        instanceRef = null
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
@@ -271,10 +271,11 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-
+        activityRef = WeakReference(binding.activity)
     }
 
     override fun onDetachedFromActivity() {
-
+        activityRef?.clear()
+        activityRef = null
     }
 }
