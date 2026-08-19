@@ -8,4 +8,6 @@ abstract class IGameBizCallback {
 
 
   void openPlatformPage(String path, String data){}
+
+
 }

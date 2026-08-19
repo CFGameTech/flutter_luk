@@ -16,7 +16,8 @@ public class LukGameViewFactory : NSObject, FlutterPlatformViewFactory {
     var roomId:String?
     var isRoomOwner:Bool = false
     var safeArea:CFGameEdgeInsets? = nil
-   
+    var gameConfig:String?
+
    init(registrarInstance : FlutterPluginRegistrar) {
       self.registrarInstance = registrarInstance
       super.init()
@@ -37,6 +38,7 @@ public class LukGameViewFactory : NSObject, FlutterPlatformViewFactory {
        var minScaleLimit:CGFloat = 0
        var width:CGFloat = 0
        var height:CGFloat = 0
+       var gameConfig:String = ""
 
        if let params = args as? [String: Any] {
            gameModel.g_url = params["g_url"] as? String ?? ""
@@ -51,7 +53,7 @@ public class LukGameViewFactory : NSObject, FlutterPlatformViewFactory {
            minScaleLimit =  params["minScaleLimit"] as? CGFloat ?? 0
            width = params["width"] as? CGFloat ?? 0
            height = params["height"] as? CGFloat ?? 0
-
+           gameConfig = params["gameConfig"] as? String ?? ""
        }
        
        if let m = self.gameModel, let v = lukGameView  {
@@ -72,6 +74,7 @@ public class LukGameViewFactory : NSObject, FlutterPlatformViewFactory {
 
        self.roomId = roomId
        self.isRoomOwner = isRoomOwner
+       self.gameConfig = gameConfig
        self.gameModel = gameModel
        let view = LukGameView(newFrame, viewId: viewId, gameModel: gameModel, registrarInstance: registrarInstance)
        lukGameView = view

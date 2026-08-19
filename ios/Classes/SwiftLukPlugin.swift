@@ -244,7 +244,7 @@ extension SwiftLukPlugin: CFGameSDKDelegate {
     public func onWindowSafeArea() -> CFGameEdgeInsets {
         return SwiftLukPlugin.gameViewFactory?.safeArea ?? CFGameEdgeInsets.init()
     }
-    
+
     /**
      * 游戏预加载结果回调
      */
@@ -273,8 +273,14 @@ extension SwiftLukPlugin: CFGameSDKDelegate {
 
     public func openPlatformPage(_ path: String?, data: String?) {
         let map: [String: Any] = ["path": path ?? "","data": path ?? ""]
-        SwiftLukPlugin.channel?.invokeMethod("onGamePrepare", arguments: map)
+        SwiftLukPlugin.channel?.invokeMethod("openPlatformPage", arguments: map)
     }
+
+    public func onGetGameConfig(_ dataJson: String?) -> String {
+
+        return SwiftLukPlugin.gameViewFactory?.gameConfig ?? ""
+    }
+
 
 }
 
@@ -363,7 +369,7 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
     public func onGameMusicStartPlay(_ musicId: Int32, musicUrl: String, isLoop: Bool) -> Int32 {
         let map: [String: Any] = ["musicId": musicId, "musicUrl": musicUrl,"isLoop":isLoop]
         SwiftLukPlugin.channel?.invokeMethod("onGameMusicStartPlay", arguments: map)
-        return 0
+        return 1
     }
     /**
      *
@@ -372,7 +378,7 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
     public func onGameMusicStopPlay(_ musicId: Int32) -> Int32 {
         let map: [String: Any] = ["musicId": musicId]
         SwiftLukPlugin.channel?.invokeMethod("onGameMusicStopPlay", arguments: map)
-        return 0
+        return 1
     }
     /**
      *
@@ -381,7 +387,7 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
     public func onGameEffectSoundStartPlay(_ soundId: Int32, soundUrl: String, isLoop: Bool) -> Int32 {
         let map: [String: Any] = ["soundId": soundId,"soundUrl":soundUrl,"isLoop":isLoop]
         SwiftLukPlugin.channel?.invokeMethod("onGameEffectSoundStartPlay", arguments: map)
-        return 0
+        return 1
     }
     /**
      *
@@ -390,7 +396,7 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
     public func onGameEffectSoundStopPlay(_ effectId: Int32) -> Int32 {
         let map: [String: Any] = ["effectId": effectId]
         SwiftLukPlugin.channel?.invokeMethod("onGameEffectSoundStopPlay", arguments: map)
-        return 0
+        return 1
     }
 
     public func onGameScreenShotBaseData(_ base64String: String?, dataJson: String?) {

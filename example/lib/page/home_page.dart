@@ -22,6 +22,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool? _loginSuccess; //是否登录成功
   final List<GameInfo> _gameList = []; //游戏列表
+  String? _dataString;
 
   @override
   void initState() {
@@ -41,6 +42,9 @@ class _HomePageState extends State<HomePage> {
     Luk.instance.setGameLogger(GameLogger());
     Luk.instance.setRTCCallback(GameRTCCallback());
 
+
+    _dataString = "";
+    // _dataString = '{"customizeConfig":{"ping_hide":1,"logo_hide":1},"gameConfig":{"player_num":2}}';
     // sdk初始化
     await Luk.instance.setupSdk(appId: 1002401, language: "zh_CN", area: "cn", isProduct: false);
     // 用户登录
@@ -51,7 +55,10 @@ class _HomePageState extends State<HomePage> {
     if (list.isNotEmpty) {
       _gameList.addAll(list);
     }
+
+    Luk.instance.preloadGameList([164]);
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +106,7 @@ class _HomePageState extends State<HomePage> {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return GamePage(
             gameInfo: result,
+            gameConfig: _dataString!,
           );
         }));
       }

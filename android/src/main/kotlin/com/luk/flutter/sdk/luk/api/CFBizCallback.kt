@@ -52,7 +52,9 @@ object CFBizCallback : ICFBizCallback {
 
 
     override fun onGetGameConfig(p0: String?): String {
-        return ""
+        val gameConfig = LukPlatformViewFactory.getGameConfig()
+        L.info(TAG, "onGetGameConfig(),config:$gameConfig")
+        return gameConfig
     }
 
 }

@@ -32,12 +32,19 @@ var cf_game={
             }
     },
     OpenApi:{
-        getBaseInfo: function (callback) {
-                    console.log("sdk getBaseInfo");
-                    console.log(window.webkit.messageHandlers);
-                    var invokeId = getInvokeId();
-                    cfgCallJsBacks[invokeId] = callback;
-                    CFGameOpenApi.getBaseInfo.postMessage(invokeId);
+        getBaseInfo: function (callback,dataJson) {
+                console.log("sdk getBaseInfo 443");
+                console.log(window.webkit.messageHandlers);
+                var invokeId = getInvokeId();
+                cfgCallJsBacks[invokeId] = callback;
+                var message = {
+                    invokeId:invokeId,
+                    data:{
+                        dataJson:dataJson,
+                    }
+                };
+                CFGameOpenApi.getBaseInfo.postMessage(message);
+
         },
         
         getWindowSafeArea: function (callback) {

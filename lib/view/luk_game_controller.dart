@@ -5,13 +5,15 @@ class LukGameController {
   GameInfo? initGameInfo;
   bool isRoomOwner;
   String roomId;
+  String gameConfig;
 
   List<void Function(GameInfo initGameInfo)>? _onGameChangedCallbacks = [];
 
   LukGameController(
       {required this.initGameInfo,
       required this.isRoomOwner,
-      required this.roomId});
+      required this.roomId,
+      required this.gameConfig});
 
   /// 添加一个监听器
   void addOnGameChangedCallback(void Function(GameInfo initGameInfo) callback) {

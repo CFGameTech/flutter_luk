@@ -40,6 +40,7 @@ class _LukGameViewState extends State<LukGameView> {
         // 同一个游戏不需要重复切换
         return;
       }
+      
       _gameInfo = null;
       setState(() {});
       await Future.delayed(const Duration(milliseconds: 100));
@@ -53,6 +54,7 @@ class _LukGameViewState extends State<LukGameView> {
       creationParams["scaleMinLimit"] = widget.gameSafeArea.scaleMinLimit;
       creationParams["height"] = widget.gameWindowSize.height;
       creationParams["width"] = widget.gameWindowSize.width;
+      creationParams["gameConfig"] = widget.controller.gameConfig;
       if (widget.controller.initGameInfo != null) {}
       var gameInfo = initGameInfo.toMap();
       for (String key in gameInfo.keys) {
