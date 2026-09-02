@@ -31,7 +31,8 @@ static NSString *cf_app_call_get_game_state = @"cf_app_call_get_game_state";
 static NSString *cf_app_call_get_player_state = @"cf_app_call_get_player_state";
 //  替换货币图标
 static NSString *cf_app_call_change_money_icon = @"cf_app_call_change_money_icon";
-
+//  发送透传字段
+static NSString *cf_app_call_game_ext = @"cf_app_call_game_ext";
 
 
 #pragma mark - 游戏状态上报
@@ -61,7 +62,10 @@ static NSString *cf_game_call_game_click_game_settle_again_btn = @"cf_game_call_
 static NSString *cf_game_call_game_disconnect = @"cf_game_call_game_disconnect";
 //  帮助按钮点击状态
 static NSString *cf_game_call_game_click_help_btn = @"cf_game_call_game_click_help_btn";
-
+//  游戏错误信息上报
+static NSString *cf_game_call_game_exception_msg = @"cf_game_call_game_exception_msg";
+//  游戏加载进度上报
+static NSString *cf_game_call_game_load_progress = @"cf_game_call_game_load_progress";
 
 #pragma mark - 玩家状态上报
 //  加入状态

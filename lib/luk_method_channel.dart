@@ -34,6 +34,11 @@ class MethodChannelLuk extends LukPlatform {
         case "onOpenChargePage":
           gameBizCallback?.onOpenChargePage();
           break;
+        case "openPlatformPage":
+          var path = call.arguments["path"] as String?;
+          var data = call.arguments["data"] as String?;
+          gameBizCallback?.openPlatformPage(path ?? "", data ?? "");
+          break;
         case "onGamePageClose":
           gameBizCallback?.onGamePageClose();
           break;

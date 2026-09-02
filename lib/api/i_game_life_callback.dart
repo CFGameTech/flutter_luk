@@ -37,5 +37,7 @@ abstract class IGameLifeCallback {
   void onGameEffectSoundStartPlay(int soundId, String soundUrl, bool isLoop){}
 
   void onGameEffectSoundStopPlay(int effectId){}
+
+  void onGameScreenShotBaseData(String base64String, String dataJson) {}
 }
 

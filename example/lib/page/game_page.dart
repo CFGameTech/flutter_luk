@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:luk/bean/game_info.dart';
+import 'package:luk/bean/game_safe_area.dart';
 import 'package:luk/luk.dart';
 import 'package:luk/view/luk_game_controller.dart';
 import 'package:luk/view/luk_game_view.dart';
@@ -8,8 +9,8 @@ import 'package:luk_example/sheet/game_list_sheet.dart';
 /// 游戏页
 class GamePage extends StatefulWidget {
   final GameInfo gameInfo;
-
-  const GamePage({super.key, required this.gameInfo});
+  final String gameConfig;
+  const GamePage({super.key, required this.gameInfo,required this.gameConfig});
 
   @override
   State<StatefulWidget> createState() {
@@ -20,13 +21,15 @@ class GamePage extends StatefulWidget {
 class _GamePageState extends State<GamePage> {
   late LukGameController _gameController;
   late GameInfo _gameInfo;
+  late String _gameConfig;
 
   @override
   void initState() {
     super.initState();
     _gameInfo = widget.gameInfo;
+    _gameConfig = widget.gameConfig;
     _gameController = LukGameController(
-        initGameInfo: _gameInfo, roomId: "200016", isRoomOwner: true);
+        initGameInfo: _gameInfo, roomId: "200017", isRoomOwner: true, gameConfig:_gameConfig);
   }
 
   @override
@@ -42,7 +45,8 @@ class _GamePageState extends State<GamePage> {
       body: Stack(
         children: [
           LukGameView(
-            controller: _gameController,
+            controller: _gameController, gameWindowSize: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height,),
+            gameSafeArea: const GameSafeArea(left: 0, top: 0, right: 0, bottom: 0, scaleMinLimit: 0.5),
           ),
           Positioned(
               top: 50,

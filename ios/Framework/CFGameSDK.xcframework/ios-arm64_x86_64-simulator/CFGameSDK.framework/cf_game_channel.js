@@ -32,12 +32,19 @@ var cf_game={
             }
     },
     OpenApi:{
-        getBaseInfo: function (callback) {
-                    console.log("sdk getBaseInfo");
-                    console.log(window.webkit.messageHandlers);
-                    var invokeId = getInvokeId();
-                    cfgCallJsBacks[invokeId] = callback;
-                    CFGameOpenApi.getBaseInfo.postMessage(invokeId);
+        getBaseInfo: function (callback,dataJson) {
+                console.log("sdk getBaseInfo 443");
+                console.log(window.webkit.messageHandlers);
+                var invokeId = getInvokeId();
+                cfgCallJsBacks[invokeId] = callback;
+                var message = {
+                    invokeId:invokeId,
+                    data:{
+                        dataJson:dataJson,
+                    }
+                };
+                CFGameOpenApi.getBaseInfo.postMessage(message);
+
         },
         
         getWindowSafeArea: function (callback) {
@@ -52,6 +59,16 @@ var cf_game={
             console.log("sdk openChargePage");
             CFGameOpenApi.openChargePage.postMessage(invokeId);
         },
+        openPlatformPage: function (path,dataStr) {
+            console.log("sdk openPlatformPage");
+            var message = {
+                data:{
+                    path:path,
+                    dataStr:dataStr
+                }
+            };
+            CFGameOpenApi.openPlatformPage.postMessage(message);
+        },
 
         closeGamePage: function () {
             var invokeId = getInvokeId();
@@ -62,7 +79,7 @@ var cf_game={
     },
     GameLife:{
         getGameloadProgress: function (progress){
-            console.log("sdk getGameloadProgress");
+//            console.log("sdk getGameloadProgress");
             CFGameLife.getGameloadProgress.postMessage(progress);
         },
         gameLoadFail() {
@@ -198,7 +215,16 @@ var cf_game={
             console.log("sdk playerStateChange");
             CFGameLife.playerStateChange.postMessage(data);
         },
-        
+        gameSendScreenshot(imageData,dataJson){
+            console.log("sdk gameSendScreenshot")
+            var message = {
+                data:{
+                    imageData:imageData,
+                    dataJson:dataJson,
+                }
+            };
+            CFGameLife.gameSendScreenshot.postMessage(message);
+        }
 
     }
 };

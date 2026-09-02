@@ -42,7 +42,19 @@ object CFBizCallback : ICFBizCallback {
 
     }
 
-    override fun onOpenShopPage(p0: String){
-        L.info(TAG,"onOpenShopPage")
+    override fun openPlatformPage(p0: String?, p1: String?) {
+        L.info(TAG, "openPlatformPage(),p0:$p0 ,p1:$p1")
+        val params: HashMap<String, Any> = HashMap()
+        params["path"] = p0 ?: ""
+        params["data"] = p0 ?: ""
+        LukPlugin.callFlutter("openPlatformPage",params)
     }
+
+
+    override fun onGetGameConfig(p0: String?): String {
+        val gameConfig = LukPlatformViewFactory.getGameConfig()
+        L.info(TAG, "onGetGameConfig(),config:$gameConfig")
+        return gameConfig
+    }
+
 }

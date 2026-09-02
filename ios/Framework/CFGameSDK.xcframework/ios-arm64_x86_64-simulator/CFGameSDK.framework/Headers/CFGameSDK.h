@@ -50,6 +50,14 @@ typedef void(^GetGameListFailureBlk)(int code ,NSString * __nonnull msg);
  */
 - (CFGameEdgeInsets)onWindowSafeArea;
 
+
+/**
+ *  
+ *      游戏参数自定义配置方法
+ */
+- (NSString *_Nullable)onGetGameConfig:(NSString *_Nullable)dataJson;
+
+
 @optional
 
 /**
@@ -64,9 +72,22 @@ typedef void(^GetGameListFailureBlk)(int code ,NSString * __nonnull msg);
 - (void)openChargePage;
 
 /**
+    打开商城回调
+ */
+- (void)openPlatformPage:(NSString *_Nonnull)path data:(NSString *_Nullable)data;
+
+
+
+
+/**
  *  游戏预加载成功返回游戏id
  */
 - (void)onPreLoadGameSuccess:(NSInteger)gid gameState:(GameState)state;
+
+
+
+
+
 
 /**
     设置统计上报回调
@@ -195,6 +216,14 @@ typedef void(^GetGameListFailureBlk)(int code ,NSString * __nonnull msg);
  * @param dataJson 参数
  */
 -(void)onPlayerStateChangeState:(NSString *_Nonnull)uid state:(NSString*_Nonnull)state dataJson:(NSString*_Nullable)dataJson;
+
+
+/***
+ *
+ *     游戏截图回调接口
+ **/
+- (void)onGameScreenShotBaseData:(NSString *_Nullable)base64String dataJson:(NSString *_Nullable)dataJson;
+
 
 @end
 

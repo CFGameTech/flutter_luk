@@ -7,7 +7,7 @@ public class SwiftLukPlugin: NSObject, FlutterPlugin {
     static var gameViewFactory: LukGameViewFactory?
     static var channel:FlutterMethodChannel?
     private var pendingResult: FlutterResult?
-    private var canJoinGame:Bool = false
+    private var isWaitingForFlutterResult:Bool = false
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         channel = FlutterMethodChannel(name: "luk", binaryMessenger: registrar.messenger())
@@ -244,12 +244,12 @@ extension SwiftLukPlugin: CFGameSDKDelegate {
     public func onWindowSafeArea() -> CFGameEdgeInsets {
         return SwiftLukPlugin.gameViewFactory?.safeArea ?? CFGameEdgeInsets.init()
     }
-    
+
     /**
      * 游戏预加载结果回调
      */
     public func onPreLoadGameSuccess(_ gid: Int, gameState state: GameState) {
-        let map: [String: Any] = ["gid": gid, "state": state]
+        let map: [String: Any] = ["gid": String(gid), "state": state.rawValue]
         SwiftLukPlugin.channel?.invokeMethod("onPreLoadGameSuccess", arguments: map)
     }
     
@@ -270,9 +270,22 @@ extension SwiftLukPlugin: CFGameSDKDelegate {
 
         SwiftLukPlugin.channel?.invokeMethod("onOpenChargePage", arguments: nil)
     }
+
+    public func openPlatformPage(_ path: String?, data: String?) {
+        let map: [String: Any] = ["path": path ?? "","data": path ?? ""]
+        SwiftLukPlugin.channel?.invokeMethod("openPlatformPage", arguments: map)
+    }
+
+    public func onGetGameConfig(_ dataJson: String?) -> String {
+
+        return SwiftLukPlugin.gameViewFactory?.gameConfig ?? ""
+    }
+
+
 }
 
 extension SwiftLukPlugin: CFGameLifeCycleDelegate {
+
     
     /**
      *
@@ -286,7 +299,7 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
         游戏加载完毕
      */
     public func gameDidFinishLoad() {
-        SwiftLukPlugin.channel?.invokeMethod("gameDidFinishLoad", arguments: nil)
+        SwiftLukPlugin.channel?.invokeMethod("onGameDidFinishLoad", arguments: nil)
     }
 
     /**
@@ -294,20 +307,26 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
      * 用户自动上麦加入游戏
      */
     public func onPreJoinGame(_ uid: String, seatIndex: Int) -> Bool {
-        if (!canJoinGame) {
+        if (isWaitingForFlutterResult) {
+
+            return false
+        }
+
+
+        isWaitingForFlutterResult = true
+
             let map: [String: Any] = ["uid": uid, "seatIndex": seatIndex]
+
             SwiftLukPlugin.channel?.invokeMethod("onPreJoinGame", arguments: map, result: {(result)-> Void in
                 let r = result as? Bool ?? false
                 if(r){
-                    self.canJoinGame = true
+
                     CFGameSDK.joinGame(seatIndex)
                 }
+                self.isWaitingForFlutterResult = false
             })
             return false
-        } else {
-            canJoinGame = false
-            return true
-        }
+
     }
 
 
@@ -356,7 +375,7 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
     public func onGameMusicStartPlay(_ musicId: Int32, musicUrl: String, isLoop: Bool) -> Int32 {
         let map: [String: Any] = ["musicId": musicId, "musicUrl": musicUrl,"isLoop":isLoop]
         SwiftLukPlugin.channel?.invokeMethod("onGameMusicStartPlay", arguments: map)
-        return 0
+        return 1
     }
     /**
      *
@@ -365,7 +384,7 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
     public func onGameMusicStopPlay(_ musicId: Int32) -> Int32 {
         let map: [String: Any] = ["musicId": musicId]
         SwiftLukPlugin.channel?.invokeMethod("onGameMusicStopPlay", arguments: map)
-        return 0
+        return 1
     }
     /**
      *
@@ -374,7 +393,7 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
     public func onGameEffectSoundStartPlay(_ soundId: Int32, soundUrl: String, isLoop: Bool) -> Int32 {
         let map: [String: Any] = ["soundId": soundId,"soundUrl":soundUrl,"isLoop":isLoop]
         SwiftLukPlugin.channel?.invokeMethod("onGameEffectSoundStartPlay", arguments: map)
-        return 0
+        return 1
     }
     /**
      *
@@ -383,9 +402,15 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
     public func onGameEffectSoundStopPlay(_ effectId: Int32) -> Int32 {
         let map: [String: Any] = ["effectId": effectId]
         SwiftLukPlugin.channel?.invokeMethod("onGameEffectSoundStopPlay", arguments: map)
-        return 0
+        return 1
     }
 
+    public func onGameScreenShotBaseData(_ base64String: String?, dataJson: String?) {
+        let map: [String: Any] = ["base64String": base64String,"dataJson":dataJson]
+        SwiftLukPlugin.channel?.invokeMethod("onGameScreenShotBaseData", arguments: map)
+        
+    }
+    
 
     /**
      *

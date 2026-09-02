@@ -6,7 +6,10 @@ import com.luk.flutter.sdk.luk.LukPlugin
 
 
 object CFRTCCallback : ICFRTCCallback {
+
     private const val TAG = "CFRTCCallback"
+
+
     override fun onCFGamePushSelfRTC(p0: Boolean): Boolean {
         L.info(TAG, "onCFGamePushSelfRTC(),p0:$p0")
         val params: HashMap<String, Any> = HashMap()
