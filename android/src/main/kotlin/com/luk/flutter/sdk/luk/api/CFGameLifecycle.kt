@@ -11,39 +11,80 @@ object CFGameLifecycle : ICFGameLifecycle {
 
     private var canJoinGame = false     //是否可以直接加入游戏
 
+    private var isWaitingForFlutterResult = false
+
     override fun onGameLoadFail() {
         L.info(TAG, "onGameLoadFail()")
         LukPlugin.callFlutter("onGameLoadFail")
     }
 
+//    override fun onPreJoinGame(p0: String?, p1: Int): Boolean {
+//        L.info(TAG, "onPreJoinGame(),uid:$p0, seatIndex:$p1,canJoinGame:$canJoinGame")
+//        if (!canJoinGame) {
+//            val params: HashMap<String, Any> = HashMap()
+//            params["uid"] = p0 ?: ""
+//            params["seatIndex"] = p1
+//            LukPlugin.callFlutter("onPreJoinGame", params, object : Result {
+//                override fun success(result: Any?) {
+//                    L.info(TAG, "onPreJoinGame(),uid:$p0, result:$result")
+//                    if (result == true) {
+//                        canJoinGame = true
+//                        CFGame.joinGame(p1)
+//                    }
+//                }
+//
+//                override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+//                    L.error(TAG, "onPreJoinGame(),error! errorCode$errorCode,errorMessage:$errorMessage")
+//                }
+//
+//                override fun notImplemented() {
+//                    L.error(TAG, "onPreJoinGame(),notImplemented!")
+//                }
+//            })
+//        } else {
+//            canJoinGame = false
+//            return true
+//        }
+//        return canJoinGame
+//    }
+
     override fun onPreJoinGame(p0: String?, p1: Int): Boolean {
-        L.info(TAG, "onPreJoinGame(),uid:$p0, seatIndex:$p1,canJoinGame:$canJoinGame")
-        if (!canJoinGame) {
-            val params: HashMap<String, Any> = HashMap()
-            params["uid"] = p0 ?: ""
-            params["seatIndex"] = p1
-            LukPlugin.callFlutter("onPreJoinGame", params, object : Result {
-                override fun success(result: Any?) {
-                    L.info(TAG, "onPreJoinGame(),uid:$p0, result:$result")
-                    if (result == true) {
-                        canJoinGame = true
-                        CFGame.joinGame(p1)
-                    }
-                }
+        L.info(TAG, "onPreJoinGame(),uid:$p0, seatIndex:$p1")
 
-                override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
-                    L.error(TAG, "onPreJoinGame(),error! errorCode$errorCode,errorMessage:$errorMessage")
-                }
-
-                override fun notImplemented() {
-                    L.error(TAG, "onPreJoinGame(),notImplemented!")
-                }
-            })
-        } else {
-            canJoinGame = false
-            return true
+        // 如果正在等待 Flutter 返回，直接拒绝（防止重复调用）
+        if (isWaitingForFlutterResult) {
+            L.info(TAG, "onPreJoinGame() - already waiting for flutter result, return false")
+            return false
         }
-        return canJoinGame
+
+        // 每次都询问 Flutter
+        isWaitingForFlutterResult = true
+        val params = hashMapOf<String, Any>(
+            "uid" to (p0 ?: ""),
+            "seatIndex" to p1
+        )
+
+        LukPlugin.callFlutter("onPreJoinGame", params, object : Result {
+            override fun success(result: Any?) {
+                L.info(TAG, "onPreJoinGame(),uid:$p0, result:$result")
+                isWaitingForFlutterResult = false
+                if (result == true) {
+                    CFGame.joinGame(p1)
+                }
+            }
+
+            override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+                L.error(TAG, "onPreJoinGame(),error! errorCode$errorCode,errorMessage:$errorMessage")
+                isWaitingForFlutterResult = false
+            }
+
+            override fun notImplemented() {
+                L.error(TAG, "onPreJoinGame(),notImplemented!")
+                isWaitingForFlutterResult = false
+            }
+        })
+
+        return false  // 原生层先返回 false，等 Flutter 回调后再真正 join
     }
 
     override fun onGamePrepare(p0: String?) {

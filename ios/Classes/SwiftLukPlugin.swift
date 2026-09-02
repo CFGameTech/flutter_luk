@@ -7,7 +7,7 @@ public class SwiftLukPlugin: NSObject, FlutterPlugin {
     static var gameViewFactory: LukGameViewFactory?
     static var channel:FlutterMethodChannel?
     private var pendingResult: FlutterResult?
-    private var canJoinGame:Bool = false
+    private var isWaitingForFlutterResult:Bool = false
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         channel = FlutterMethodChannel(name: "luk", binaryMessenger: registrar.messenger())
@@ -307,20 +307,26 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
      * 用户自动上麦加入游戏
      */
     public func onPreJoinGame(_ uid: String, seatIndex: Int) -> Bool {
-        if (!canJoinGame) {
+        if (isWaitingForFlutterResult) {
+
+            return false
+        }
+
+
+        isWaitingForFlutterResult = true
+
             let map: [String: Any] = ["uid": uid, "seatIndex": seatIndex]
+
             SwiftLukPlugin.channel?.invokeMethod("onPreJoinGame", arguments: map, result: {(result)-> Void in
                 let r = result as? Bool ?? false
                 if(r){
-                    self.canJoinGame = true
+
                     CFGameSDK.joinGame(seatIndex)
                 }
+                self.isWaitingForFlutterResult = false
             })
             return false
-        } else {
-            canJoinGame = false
-            return true
-        }
+
     }
 
 

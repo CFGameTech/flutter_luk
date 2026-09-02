@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:luk/bean/game_info.dart';
+import 'package:luk/bean/game_safe_area.dart';
 import 'package:luk/luk.dart';
 import 'package:luk/view/luk_game_controller.dart';
 import 'package:luk/view/luk_game_view.dart';
@@ -44,7 +45,8 @@ class _GamePageState extends State<GamePage> {
       body: Stack(
         children: [
           LukGameView(
-            controller: _gameController, gameWindowSize: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height),
+            controller: _gameController, gameWindowSize: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height,),
+            gameSafeArea: const GameSafeArea(left: 0, top: 0, right: 0, bottom: 0, scaleMinLimit: 0.5),
           ),
           Positioned(
               top: 50,
