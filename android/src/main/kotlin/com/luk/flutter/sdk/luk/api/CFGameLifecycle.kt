@@ -10,40 +10,120 @@ object CFGameLifecycle : ICFGameLifecycle {
     private const val TAG = "CFGameLifecycle"
 
     private var canJoinGame = false     //是否可以直接加入游戏
+    private var isWaitingForCanJoinGameResult = false
+
+    private var canStartGame = false    //  是否可以直接开始游戏
+    private var isWaitingForCanStartGameResult = false
 
     override fun onGameLoadFail() {
         L.info(TAG, "onGameLoadFail()")
         LukPlugin.callFlutter("onGameLoadFail")
     }
 
+//    override fun onPreJoinGame(p0: String?, p1: Int): Boolean {
+//        L.info(TAG, "onPreJoinGame(),uid:$p0, seatIndex:$p1,canJoinGame:$canJoinGame")
+//        if (!canJoinGame) {
+//            val params: HashMap<String, Any> = HashMap()
+//            params["uid"] = p0 ?: ""
+//            params["seatIndex"] = p1
+//            LukPlugin.callFlutter("onPreJoinGame", params, object : Result {
+//                override fun success(result: Any?) {
+//                    L.info(TAG, "onPreJoinGame(),uid:$p0, result:$result")
+//                    if (result == true) {
+//                        canJoinGame = true
+//                        CFGame.joinGame(p1)
+//                    }
+//                }
+//
+//                override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+//                    L.error(TAG, "onPreJoinGame(),error! errorCode$errorCode,errorMessage:$errorMessage")
+//                }
+//
+//                override fun notImplemented() {
+//                    L.error(TAG, "onPreJoinGame(),notImplemented!")
+//                }
+//            })
+//        } else {
+//            canJoinGame = false
+//            return true
+//        }
+//        return canJoinGame
+//    }
+
     override fun onPreJoinGame(p0: String?, p1: Int): Boolean {
-        L.info(TAG, "onPreJoinGame(),uid:$p0, seatIndex:$p1,canJoinGame:$canJoinGame")
-        if (!canJoinGame) {
-            val params: HashMap<String, Any> = HashMap()
-            params["uid"] = p0 ?: ""
-            params["seatIndex"] = p1
-            LukPlugin.callFlutter("onPreJoinGame", params, object : Result {
-                override fun success(result: Any?) {
-                    L.info(TAG, "onPreJoinGame(),uid:$p0, result:$result")
-                    if (result == true) {
-                        canJoinGame = true
-                        CFGame.joinGame(p1)
-                    }
-                }
+        L.info(TAG, "onPreJoinGame(),uid:$p0, seatIndex:$p1")
 
-                override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
-                    L.error(TAG, "onPreJoinGame(),error! errorCode$errorCode,errorMessage:$errorMessage")
-                }
-
-                override fun notImplemented() {
-                    L.error(TAG, "onPreJoinGame(),notImplemented!")
-                }
-            })
-        } else {
-            canJoinGame = false
-            return true
+        // 如果正在等待 Flutter 返回，直接拒绝（防止重复调用）
+        if (isWaitingForCanJoinGameResult) {
+            L.info(TAG, "onPreJoinGame() - already waiting for flutter result, return false")
+            return false
         }
-        return canJoinGame
+
+        // 每次都询问 Flutter
+        isWaitingForCanJoinGameResult = true
+        val params = hashMapOf<String, Any>(
+            "uid" to (p0 ?: ""),
+            "seatIndex" to p1
+        )
+
+        LukPlugin.callFlutter("onPreJoinGame", params, object : Result {
+            override fun success(result: Any?) {
+                L.info(TAG, "onPreJoinGame(),uid:$p0, result:$result")
+                isWaitingForCanJoinGameResult = false
+                if (result == true) {
+                    CFGame.joinGame(p1)
+                }
+            }
+
+            override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+                L.error(TAG, "onPreJoinGame(),error! errorCode$errorCode,errorMessage:$errorMessage")
+                isWaitingForCanJoinGameResult = false
+            }
+
+            override fun notImplemented() {
+                L.error(TAG, "onPreJoinGame(),notImplemented!")
+                isWaitingForCanJoinGameResult = false
+            }
+        })
+
+        return false  // 原生层先返回 false，等 Flutter 回调后再真正 join
+    }
+
+    override fun onCanStartGame(p0: String?): Boolean {
+        L.info(TAG, "onCanStartGame(),uid:$p0")
+
+        // 如果正在等待 Flutter 返回，直接拒绝（防止重复调用）
+        if (isWaitingForCanStartGameResult) {
+            L.info(TAG, "onCanStartGame() - already waiting for flutter result, return false")
+            return false
+        }
+
+        isWaitingForCanStartGameResult = true
+        val params = hashMapOf<String, Any>(
+            "uid" to (p0 ?: "")
+        )
+
+        LukPlugin.callFlutter("onCanStartGame", params, object : Result {
+            override fun success(result: Any?) {
+                L.info(TAG, "onCanStartGame(),uid:$p0, result:$result")
+                isWaitingForCanStartGameResult = false
+                if (result == true) {
+                    CFGame.gameStart()
+                }
+            }
+
+            override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+                L.error(TAG, "onCanStartGame(),error! errorCode$errorCode,errorMessage:$errorMessage")
+                isWaitingForCanStartGameResult = false
+            }
+
+            override fun notImplemented() {
+                L.error(TAG, "onCanStartGame(),notImplemented!")
+                isWaitingForCanStartGameResult = false
+            }
+        })
+
+        return false  // 原生层先返回 false，等 Flutter 回调后再真正 join
     }
 
     override fun onGamePrepare(p0: String?) {
@@ -86,7 +166,7 @@ object CFGameLifecycle : ICFGameLifecycle {
         LukPlugin.callFlutter("onGameStateChangeState", params)
     }
 
-    override fun onPlayerStateChangeState(uid: String?, state: String?, dataJson: String?) {
+    override fun onPlayerStateChangeState(state: String?, uid: String?,  dataJson: String?) {
         L.info(TAG, "onPlayerStateChangeState(),uid:$uid,state:$state,dataJson:$dataJson")
         val params: HashMap<String, Any> = HashMap()
         params["uid"] = uid ?: ""
@@ -94,6 +174,7 @@ object CFGameLifecycle : ICFGameLifecycle {
         params["dataJson"] = dataJson ?: "{}"
         LukPlugin.callFlutter("onPlayerStateChangeState", params)
     }
+
 
     override fun onGamePurchaseResult(p0: Int, p1: String?) {
         L.info(TAG, "onGamePurchaseResult(),code:$p0,orderId:$p1")
@@ -138,4 +219,13 @@ object CFGameLifecycle : ICFGameLifecycle {
         LukPlugin.callFlutter("onGameEffectSoundStopPlay", params)
         return 0
     }
+
+    override fun onGameScreenShotBaseData(base64String: String,dataJson: String?) {
+        L.info(TAG, "onGameScreenShotBaseData(),base64String:$base64String,dataJson:$dataJson")
+        val params: HashMap<String, Any> = HashMap()
+        params["base64String"] = base64String
+        params["dataJson"] = dataJson ?: ""
+        LukPlugin.callFlutter("onGameScreenShotBaseData", params)
+    }
+
 }

@@ -5,4 +5,9 @@ abstract class IGameBizCallback {
 
   /// 游戏页关闭
   void onGamePageClose(){}
+
+
+  void openPlatformPage(String path, String data){}
+
+
 }

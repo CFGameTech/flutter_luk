@@ -2,15 +2,20 @@ import 'package:luk/api/i_game_biz_callback.dart';
 import 'package:luk/api/i_game_life_callback.dart';
 import 'package:luk/api/i_game_logger.dart';
 import 'package:luk/api/i_game_rtc_callback.dart';
+import 'package:luk/api/i_init_callback.dart';
 import 'package:luk/api/i_login_callback.dart';
 import 'package:luk/api/i_preload_game_callback.dart';
 import 'package:luk/api/i_report_stats_event_callback.dart';
+import 'package:luk/api/i_update_user_code_callback.dart';
+import 'package:luk/bean/game_audio_info.dart';
 import 'package:luk/bean/game_info.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'luk_method_channel.dart';
 
 abstract class LukPlatform extends PlatformInterface {
+  // flutter调用原生方法
+
   LukPlatform() : super(token: _token);
 
   static final Object _token = Object();
@@ -24,13 +29,13 @@ abstract class LukPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future setupSdk({required int appId, required String language, required String area, required bool isProduct}) {
+  Future<bool> setupSdk({required int appId, required String appKey, required String language, required String area, required bool isGameSoundPlay, required bool isProduct}) {
     throw UnimplementedError('setupSdk() has not been implemented.');
   }
-
-  Future<bool> setUserInfo({required String uid, required String verifyCode}) {
-    throw UnimplementedError('setUserInfo() has not been implemented.');
-  }
+  //
+  // Future<bool> setUserInfo({required String uid, required String verifyCode}) {
+  //   throw UnimplementedError('setUserInfo() has not been implemented.');
+  // }
 
   Future<List<GameInfo>> getGameList() {
     throw UnimplementedError('getGameList() has not been implemented.');
@@ -66,6 +71,10 @@ abstract class LukPlatform extends PlatformInterface {
 
   void setLoginCallback(ILoginCallback callback) {
     throw UnimplementedError('setLoginCallback() has not been implemented.');
+  }
+
+  void setSDKInitCallback(ISDKInitCallback callback) {
+    throw UnimplementedError('setSDKInitCallback() has not been implemented.');
   }
 
   void setRTCCallback(IGameRTCCallback callback) {
@@ -159,4 +168,13 @@ abstract class LukPlatform extends PlatformInterface {
   void appNotifyStateChange(String state, String dataJson) {
     throw UnimplementedError('appNotifyStateChange() has not been implemented.');
   }
+
+  Future<List<GameAudioInfo>> getGameAudioList(int gid) {
+    throw UnimplementedError('getGameAudioList() has not been implemented.');
+  }
+
+  void updateUserCode(String code,IUpdateUserCodeCallback callback) {
+    throw UnimplementedError('updateUserCode() has not been implemented.');
+  }
+
 }

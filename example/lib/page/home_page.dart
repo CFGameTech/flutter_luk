@@ -20,8 +20,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool? _loginSuccess; //是否登录成功
+  bool? _initSuccess; //是否登录成功
   final List<GameInfo> _gameList = []; //游戏列表
+  String? _dataString;
 
   @override
   void initState() {
@@ -41,22 +42,26 @@ class _HomePageState extends State<HomePage> {
     Luk.instance.setGameLogger(GameLogger());
     Luk.instance.setRTCCallback(GameRTCCallback());
 
+
+    _dataString = "";
+    // _dataString = '{"customizeConfig":{"ping_hide":1,"logo_hide":1},"gameConfig":{"player_num":2}}';
     // sdk初始化
-    await Luk.instance.setupSdk(appId: 1013140, language: "zh_CN", area: "cn", isProduct: true);
-    // 用户登录
-    _loginSuccess = await Luk.instance.setUserInfo(uid: "123456", verifyCode: "");
+    _initSuccess = await Luk.instance.setupSdk(appId: 1002401, appKey: "2f47a0b3adedd218b32e6d1c5e00", language: "zh_CN", area: "cn",isGameSoundPlay: true, isProduct: false);
+
     setState(() {});
     // 获取游戏列表
     List<GameInfo> list = await Luk.instance.getGameList();
     if (list.isNotEmpty) {
       _gameList.addAll(list);
     }
+
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _loginSuccess == true
+      body: _initSuccess == true
           ? Center(
               child: GestureDetector(
                 onTap: () {
@@ -76,7 +81,7 @@ class _HomePageState extends State<HomePage> {
               ),
             )
           : Center(
-              child: Text(_loginSuccess == null ? "登录中..." : "登录失败！"),
+              child: Text(_initSuccess == null ? "初始化中..." : "初始化失败！"),
             ),
     );
   }
@@ -99,11 +104,12 @@ class _HomePageState extends State<HomePage> {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return GamePage(
             gameInfo: result,
+            gameConfig: _dataString!,
           );
         }));
       }
-    } else if (_loginSuccess != true) {
-      Fluttertoast.showToast(msg: "未执行登录或登录失败！");
+    } else if (_initSuccess != true) {
+      Fluttertoast.showToast(msg: "初始化失败！");
     } else {
       Fluttertoast.showToast(msg: "游戏列表为空！");
     }

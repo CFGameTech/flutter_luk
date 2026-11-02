@@ -2,12 +2,13 @@ import Flutter
 import UIKit
 import CFGameSDK
 
+
 public class SwiftLukPlugin: NSObject, FlutterPlugin {
     
     static var gameViewFactory: LukGameViewFactory?
     static var channel:FlutterMethodChannel?
     private var pendingResult: FlutterResult?
-    private var canJoinGame:Bool = false
+    private var isWaitingForFlutterResult:Bool = false
     
     public static func register(with registrar: FlutterPluginRegistrar) {
         channel = FlutterMethodChannel(name: "luk", binaryMessenger: registrar.messenger())
@@ -23,35 +24,59 @@ public class SwiftLukPlugin: NSObject, FlutterPlugin {
         case "setupSdk": // sdk初始化
             guard let args = call.arguments as? [String: Any],
                   let appId = args["appId"] as? Int,
+                  let appKey = args["appKey"] as? String,
                   let language = args["language"] as? String,
                   let area = args["area"] as? String,
+                  let isGameSoundPlay = args["isGameSoundPlay"] as? Bool,
                   let isProduct = args["isProduct"] as? Bool else {
                 result(ResultUtil.buildResult(code: -1, msg: "params illegale!", data: nil))
                 return
             }
-            CFGameSDK.setUpWith(UIApplication.shared, appId: "\(appId)", language: language, area: area, isProduct: isProduct)
+                    let model = CFGameInitSDKModel()
+                    model.app = UIApplication.shared
+                    model.appId = Int32(appId)
+                    model.appKey = appKey
+                    model.language = language
+                    model.area = area
+                    model.isGameSoundPlay = isGameSoundPlay
+                    model.isProduct = isProduct
+
+            CFGameSDK.setUpWith(model) {
+                print("sdk init success")
+                let map: [String: Any] = ["code": 0, "msg": "success"]
+                result(map)
+
+                CFGameSDK.setBizCallback(self)
+                // 游戏状态代理
+                CFGameSDK.setCFGameLifecycleCallback(self)
+                // 可选 RTC 相关代理
+                CFGameSDK.setRTCCallback(self)
+                // sdk日志输出
+                CFGameSDK.cfGameSDKLog { msg in
+                    let map: [String: Any] = ["tag":"CFGameLog", "msg": msg]
+                    SwiftLukPlugin.channel?.invokeMethod("onInfo", arguments: map)
+                }
+            }  onFailure: { (code, msg) in
+                // 失败处理
+                print("sdk init fail code:\(code) msg:\(msg)")
+                result(FlutterError(code: "\(code)", message: msg, details: nil))
+            }
+//                    self.pendingResult = result
             // SDK 代理
-            CFGameSDK.setBizCallback(self)
-            // 游戏状态代理
-            CFGameSDK.setCFGameLifecycleCallback(self)
-            // 可选 RTC 相关代理
-            CFGameSDK.setRTCCallback(self)
-            // sdk日志输出
-            CFGameSDK.cfGameSDKLog { msg in
-                let map: [String: Any] = ["tag":"CFGameLog", "msg": msg]
-                SwiftLukPlugin.channel?.invokeMethod("onInfo", arguments: map)
-            }
-            result(0)
-        case "setUserInfo": // 用户登录
-            guard let args = call.arguments as? [String: Any],
-                  let uid = args["uid"] as? String else {
-                result(FlutterError(code: "INVALID_ARGUMENTS", message: "Missing or invalid arguments for setUserInfo", details: nil))
-                return
-            }
-            let code = args["code"] as? String ?? ""
-            // 👇 暂存result
-            self.pendingResult = result
-            CFGameSDK.setUserInfo(uid, code: code, loginCallBack: self)
+
+//            result(0)
+//        case "setUserInfo": // 用户登录
+//
+        //
+        //            guard let args = call.arguments as? [String: Any],
+//                  let uid = args["uid"] as? String else {
+//                result(FlutterError(code: "INVALID_ARGUMENTS", message: "Missing or invalid arguments for setUserInfo", details: nil))
+//                return
+//            }
+//            let code = args["code"] as? String ?? ""
+//            // 👇 暂存result
+//            self.pendingResult = result
+//            CFGameSDK.setUserInfo(uid, code: code, loginCallBack: self)
         case "getGameList": //获取游戏列表
             CFGameSDK.getGameList { gameList in
                 let list = gameList.map { game in
@@ -161,12 +186,12 @@ public class SwiftLukPlugin: NSObject, FlutterPlugin {
             CFGameSDK.setLanguage(language)
         case "gameReload":
             CFGameSDK.gameReload()
-        case "setGameVoicePath":
-            guard let args = call.arguments as? [String: Any],
-                  let path = args["path"] as? String else {
-                return
-            }
-            CFGameSDK.setGameVoicePath(path)
+//        case "setGameVoicePath":
+//            guard let args = call.arguments as? [String: Any],
+//                  let path = args["path"] as? String else {
+//                return
+//            }
+//            CFGameSDK.setGameVoicePath(path)
         case "appNotifyStateChange":
             guard let args = call.arguments as? [String: Any],
                   let state = args["state"] as? String,
@@ -174,6 +199,36 @@ public class SwiftLukPlugin: NSObject, FlutterPlugin {
                 return
             }
             CFGameSDK.appNotifyStateChange(state, dataJson: dataJson)
+        case "getGameAudioList":
+            guard let args = call.arguments as? [String: Any],
+            let gid = args["gid"] as? Int32 else {
+                return
+            }
+            CFGameSDK.getGameAudioList(gid) { audioList in
+                let list: [[String: String]] = (audioList ?? []).map { audio in
+                    return [
+                        "url":audio.url,
+                        "name":audio.name,
+                        "type":audio.type
+                    ]
+                }
+                result(list)
+            } onFailure: {code, msg in
+                result(FlutterError(code: "\(code)", message: msg, details: nil))
+            }
+        case "updateUserCode":
+            guard let args = call.arguments as? [String: Any],
+            let code = args["code"] as? String else {
+                return
+            }
+            CFGameSDK.updateUserCode(code) {
+                print("updateUserCode success")
+                let map: [String: Any] = ["code": 0, "msg": "success"]
+                result(map)
+            } onFailure: { (code, msg) in
+                // 失败处理
+                result(FlutterError(code: "\(code)", message: msg, details: nil))
+            }
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -181,46 +236,46 @@ public class SwiftLukPlugin: NSObject, FlutterPlugin {
     
 }
 
-extension SwiftLukPlugin: CFGameSDKLoginDelegate {
-    
-    /**
-     *
-     * 用户登录成功回调
-     */
-    public func onLoginSuccess() {
-        print("onLoginSuccess")
-        
-        if let result = pendingResult {
-            let map: [String: Any] = ["code": 0, "msg": ""]
-            result(map)
-            pendingResult = nil
-        }
-        SwiftLukPlugin.channel?.invokeMethod("onLoginSuccess", arguments: nil)
-    }
-    
-    /**
-     *
-     * 用户登录失败回调
-     */
-    public func onLoginFailCode(_ code: Int32, message msg: String) {
-        print("onLoginFailCode code:'\(code) msg:\(msg)")
-        if let result = pendingResult {
-            let map: [String: Any] = ["code": code, "msg": msg]
-            result(map)
-        }
-        pendingResult = nil
-        let map: [String: Any] = ["code": code, "msg":msg]
-        SwiftLukPlugin.channel?.invokeMethod("onLoginFail", arguments: map)
-    }
-    
-    /**
-     * token刷新
-     */
-    public func onRefreshToken(_ token: String) {
-        let map: [String: Any] = ["token": token]
-        SwiftLukPlugin.channel?.invokeMethod("onRefreshToken", arguments: map)
-    }
-}
+//extension SwiftLukPlugin: CFGameSDKLoginDelegate {
+//
+//    /**
+//     *
+//     * 用户登录成功回调
+//     */
+//    public func onLoginSuccess() {
+//        print("onLoginSuccess")
+//
+//        if let result = pendingResult {
+//            let map: [String: Any] = ["code": 0, "msg": ""]
+//            result(map)
+//            pendingResult = nil
+//        }
+//        SwiftLukPlugin.channel?.invokeMethod("onLoginSuccess", arguments: nil)
+//    }
+//
+//    /**
+//     *
+//     * 用户登录失败回调
+//     */
+//    public func onLoginFailCode(_ code: Int32, message msg: String) {
+//        print("onLoginFailCode code:'\(code) msg:\(msg)")
+//        if let result = pendingResult {
+//            let map: [String: Any] = ["code": code, "msg": msg]
+//            result(map)
+//        }
+//        pendingResult = nil
+//        let map: [String: Any] = ["code": code, "msg":msg]
+//        SwiftLukPlugin.channel?.invokeMethod("onLoginFail", arguments: map)
+//    }
+//
+//    /**
+//     * token刷新
+//     */
+//    public func onRefreshToken(_ token: String) {
+//        let map: [String: Any] = ["token": token]
+//        SwiftLukPlugin.channel?.invokeMethod("onRefreshToken", arguments: map)
+//    }
+//}
 
 extension SwiftLukPlugin: CFGameSDKDelegate {
     /**
@@ -244,12 +299,12 @@ extension SwiftLukPlugin: CFGameSDKDelegate {
     public func onWindowSafeArea() -> CFGameEdgeInsets {
         return SwiftLukPlugin.gameViewFactory?.safeArea ?? CFGameEdgeInsets.init()
     }
-    
+
     /**
      * 游戏预加载结果回调
      */
     public func onPreLoadGameSuccess(_ gid: Int, gameState state: GameState) {
-        let map: [String: Any] = ["gid": gid, "state": state]
+        let map: [String: Any] = ["gid": String(gid), "state": state.rawValue]
         SwiftLukPlugin.channel?.invokeMethod("onPreLoadGameSuccess", arguments: map)
     }
     
@@ -270,9 +325,22 @@ extension SwiftLukPlugin: CFGameSDKDelegate {
 
         SwiftLukPlugin.channel?.invokeMethod("onOpenChargePage", arguments: nil)
     }
+
+    public func openPlatformPage(_ path: String?, data: String?) {
+        let map: [String: Any] = ["path": path ?? "","data": path ?? ""]
+        SwiftLukPlugin.channel?.invokeMethod("openPlatformPage", arguments: map)
+    }
+
+    public func onGetGameConfig(_ dataJson: String?) -> String {
+
+        return SwiftLukPlugin.gameViewFactory?.gameConfig ?? ""
+    }
+
+
 }
 
 extension SwiftLukPlugin: CFGameLifeCycleDelegate {
+
     
     /**
      *
@@ -286,7 +354,7 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
         游戏加载完毕
      */
     public func gameDidFinishLoad() {
-        SwiftLukPlugin.channel?.invokeMethod("gameDidFinishLoad", arguments: nil)
+        SwiftLukPlugin.channel?.invokeMethod("onGameDidFinishLoad", arguments: nil)
     }
 
     /**
@@ -294,20 +362,53 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
      * 用户自动上麦加入游戏
      */
     public func onPreJoinGame(_ uid: String, seatIndex: Int) -> Bool {
-        if (!canJoinGame) {
+        if (isWaitingForFlutterResult) {
+
+            return false
+        }
+
+
+        isWaitingForFlutterResult = true
+
             let map: [String: Any] = ["uid": uid, "seatIndex": seatIndex]
+
             SwiftLukPlugin.channel?.invokeMethod("onPreJoinGame", arguments: map, result: {(result)-> Void in
                 let r = result as? Bool ?? false
                 if(r){
-                    self.canJoinGame = true
+
                     CFGameSDK.joinGame(seatIndex)
                 }
+                self.isWaitingForFlutterResult = false
             })
             return false
-        } else {
-            canJoinGame = false
-            return true
+
+    }
+
+    /**
+    *
+    * 允许用户开始游戏
+    */
+    public func onCanStartGame(_ uid: String) -> Bool {
+        if (isWaitingForFlutterResult) {
+
+            return false
         }
+
+
+        isWaitingForFlutterResult = true
+
+        let map: [String: Any] = ["uid": uid]
+
+        SwiftLukPlugin.channel?.invokeMethod("onCanStartGame", arguments: map, result: {(result)-> Void in
+            let r = result as? Bool ?? false
+            if(r){
+
+                CFGameSDK.gameStart()
+            }
+            self.isWaitingForFlutterResult = false
+        })
+        return false
+
     }
 
 
@@ -356,7 +457,7 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
     public func onGameMusicStartPlay(_ musicId: Int32, musicUrl: String, isLoop: Bool) -> Int32 {
         let map: [String: Any] = ["musicId": musicId, "musicUrl": musicUrl,"isLoop":isLoop]
         SwiftLukPlugin.channel?.invokeMethod("onGameMusicStartPlay", arguments: map)
-        return 0
+        return 1
     }
     /**
      *
@@ -365,7 +466,7 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
     public func onGameMusicStopPlay(_ musicId: Int32) -> Int32 {
         let map: [String: Any] = ["musicId": musicId]
         SwiftLukPlugin.channel?.invokeMethod("onGameMusicStopPlay", arguments: map)
-        return 0
+        return 1
     }
     /**
      *
@@ -374,7 +475,7 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
     public func onGameEffectSoundStartPlay(_ soundId: Int32, soundUrl: String, isLoop: Bool) -> Int32 {
         let map: [String: Any] = ["soundId": soundId,"soundUrl":soundUrl,"isLoop":isLoop]
         SwiftLukPlugin.channel?.invokeMethod("onGameEffectSoundStartPlay", arguments: map)
-        return 0
+        return 1
     }
     /**
      *
@@ -383,9 +484,15 @@ extension SwiftLukPlugin: CFGameLifeCycleDelegate {
     public func onGameEffectSoundStopPlay(_ effectId: Int32) -> Int32 {
         let map: [String: Any] = ["effectId": effectId]
         SwiftLukPlugin.channel?.invokeMethod("onGameEffectSoundStopPlay", arguments: map)
-        return 0
+        return 1
     }
 
+    public func onGameScreenShotBaseData(_ base64String: String?, dataJson: String?) {
+        let map: [String: Any] = ["base64String": base64String,"dataJson":dataJson]
+        SwiftLukPlugin.channel?.invokeMethod("onGameScreenShotBaseData", arguments: map)
+        
+    }
+    
 
     /**
      *

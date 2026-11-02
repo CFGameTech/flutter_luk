@@ -1,10 +1,13 @@
 import 'package:luk/api/i_game_biz_callback.dart';
 import 'package:luk/api/i_game_life_callback.dart';
 import 'package:luk/api/i_game_logger.dart';
+import 'package:luk/api/i_init_callback.dart';
 import 'package:luk/api/i_login_callback.dart';
 import 'package:luk/api/i_game_rtc_callback.dart';
 import 'package:luk/api/i_preload_game_callback.dart';
 import 'package:luk/api/i_report_stats_event_callback.dart';
+import 'package:luk/api/i_update_user_code_callback.dart';
+import 'package:luk/bean/game_audio_info.dart';
 
 import 'package:luk/bean/game_info.dart';
 
@@ -40,21 +43,28 @@ class Luk {
     LukPlatform.instance.setRTCCallback(callback);
   }
 
+  /// 初始化回调
+  void setInitSdkCallback(ISDKInitCallback callback){
+    LukPlatform.instance.setSDKInitCallback(callback);
+  }
+
 
   /// sdk初始化
-  Future setupSdk({required int appId, required String language, required String area, required bool isProduct}) {
-    return LukPlatform.instance.setupSdk(appId: appId, language: language, area: area, isProduct: isProduct);
+  Future<bool> setupSdk({required int appId, required String appKey, required String language, required String area, required bool isGameSoundPlay, required bool isProduct}) {
+    return LukPlatform.instance.setupSdk(appId: appId, appKey: appKey, language: language, area: area, isGameSoundPlay: isGameSoundPlay, isProduct: isProduct);
   }
 
-  /// 设置用户信息（登录）
-  Future<bool> setUserInfo({required String uid, required String verifyCode}) {
-    return LukPlatform.instance.setUserInfo(uid: uid, verifyCode: verifyCode);
-  }
+  // /// 设置用户信息（登录）
+  // Future<bool> setUserInfo({required String uid, required String verifyCode}) {
+  //   return LukPlatform.instance.setUserInfo(uid: uid, verifyCode: verifyCode);
+  // }
 
   /// 加载游戏列表
   Future<List<GameInfo>> getGameList() async {
     return LukPlatform.instance.getGameList();
   }
+
+
 
   /// 游戏切换到后台
   void onPause() {
@@ -189,5 +199,15 @@ class Luk {
   /// 参考：https://wiki.luk.live/docs/client-api/app_notify
   void appNotifyStateChange(String state, String dataJson) {
     LukPlatform.instance.appNotifyStateChange(state, dataJson);
+  }
+
+  ///  更新用户code
+  void updateUserCode(String code, IUpdateUserCodeCallback callback){
+    LukPlatform.instance.updateUserCode(code, callback);
+  }
+
+  /// 获取游戏音频列表
+  Future<List<GameAudioInfo>> getGameAudioList(int gid) async {
+    return LukPlatform.instance.getGameAudioList(gid);
   }
 }

@@ -6,6 +6,7 @@ class GameInfo {
   String zipUrl = "";
   int screenHalf = 0;
 
+
   GameInfo(
       this.id, this.name, this.icon, this.url, this.zipUrl, this.screenHalf);
 

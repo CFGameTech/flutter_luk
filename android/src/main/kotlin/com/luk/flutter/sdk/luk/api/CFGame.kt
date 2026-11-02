@@ -1,10 +1,16 @@
 package com.luk.flutter.sdk.luk.api
 
 import android.app.Application
+import android.widget.Toast
 import com.cftech.gamelibrary.CFGameSDK
 import com.cftech.gamelibrary.interfaces.ICFGameListCallback
 import com.cftech.gamelibrary.module.CFGameList
+import com.cftech.gamelibrary.module.CFGameAudioInfo
+import com.cftech.gamelibrary.CFGameInitSDKModel
 import com.luk.flutter.sdk.luk.util.L
+import com.cftech.gamelibrary.CFGameAudioModel
+import com.cftech.gamelibrary.CFGameSDK.ICFGameAudioCallback
+import com.cftech.gamelibrary.CFGameSDK.ICFSDKCallback
 
 object CFGame {
 
@@ -13,13 +19,26 @@ object CFGame {
     fun initSdk(
         application: Application,
         appId: Int,
-        isProduct: Boolean = true,
+        appKey: String = "",
         language: String = "zh_CN",
-        area: String = "cn"
+        area: String = "cn",
+        isGameSoundPlay: Boolean = false,
+        isProduct: Boolean = false
+
     ) {
         L.info(TAG, "initSdk(),appId:$appId,isProduct:$isProduct,language:$language,area$area")
 
-        CFGameSDK.initSDK(application, appId, language, area, isProduct)
+
+        val initSDKModel = CFGameInitSDKModel()
+        initSDKModel.application = application
+        initSDKModel.appId = appId
+        initSDKModel.appKey = appKey
+        initSDKModel.language = language
+        initSDKModel.area = area
+        initSDKModel.isGameSoundPlay = isGameSoundPlay
+        initSDKModel.isProduct = isProduct
+
+        CFGameSDK.initSDK(initSDKModel,CFSDKInitCallback)
         //业务回调监听：该监听会影响游戏的正常运行，因此必须设置。只需设置一次即可
         CFGameSDK.setBizCallback(CFBizCallback)
         //游戏状态监听：在游戏启动后，SDK 会通过游戏状态监听通知接入方各种游戏状态。
@@ -37,16 +56,17 @@ object CFGame {
     /**
      * 设置用户信息（app用户登录成功之后调用）
      */
-    fun setUserInfo(uid: String, code: String) {
-        L.info(TAG, "setUserInfo(),uid:$uid,code:$code")
-        //登录回调监听：设置用户信息后，才能打开游戏界面，因此需要关注登录是否成功。登录监听应在调用 setUserInfo 方法时同时设置。
-        CFGameSDK.setUserInfo(uid, code, CFLoginCallback)
-    }
+//    fun setUserInfo(uid: String, code: String) {
+//        L.info(TAG, "setUserInfo(),uid:$uid,code:$code")
+//        //登录回调监听：设置用户信息后，才能打开游戏界面，因此需要关注登录是否成功。登录监听应在调用 setUserInfo 方法时同时设置。
+//        CFGameSDK.setUserInfo(uid, code, CFLoginCallback)
+//    }
 
     /**
      * 获取小游戏列表(必须在用户登录成功之后调用)
      */
     fun getGameList(callback: ((MutableList<CFGameList.GameInfo>?) -> Unit)) {
+        L.info(TAG, "getGameList()")
         CFGameSDK.getGameList(object : ICFGameListCallback {
             override fun onSuccess(p0: MutableList<CFGameList.GameInfo>?) {
                 L.info(TAG, "getGameList(), success! list size:${p0?.size}")
@@ -176,18 +196,42 @@ object CFGame {
         CFGameSDK.gameReload()
     }
 
-    fun setGameVoicePath(path: String?) {
-        L.info(TAG, "setGameVoicePath(),path:$path")
-        if (path?.isNotEmpty() == true) {
-            CFGameSDK.setGameVoicePath(path)
-        }
-    }
 
     fun appNotifyStateChange(state: String?, dataJson: String?) {
         L.info(TAG, "appNotifyStateChange(),state:$state,dataJson:$dataJson")
         if (state?.isNotEmpty() == true) {
             CFGameSDK.appNotifyStateChange(state, dataJson ?: "{}")
         }
+    }
+
+    fun getGameAudioList(gid: Int, callback: ((MutableList<CFGameAudioInfo>?) -> Unit)) {
+        L.info(TAG, "getGameAudioList(), ${gid}")
+        CFGameSDK.getGameAudioList(gid, object : ICFGameAudioCallback {
+            public override fun onSuccess(p0: MutableList<CFGameAudioInfo>) {
+                L.info(TAG, "getGameAudioList(), success! list size:${p0?.size}")
+                callback(p0)
+            }
+
+            public override fun onError(code: Int, msg: String?) {
+                L.error(TAG, "getGameList(), error! code:$code,msg:$msg")
+                callback(null)
+            }
+        })
+    }
+
+    fun updateUserCode(code:String?, callback:(() -> Unit)) {
+        CFGameSDK.updateUserCode(code, object : ICFSDKCallback {
+            public override fun onSuccess() {
+                L.info(TAG, "updateUserCode(), success! ")
+                callback()
+            }
+
+            public override fun onError(code: Int, msg: String?) {
+                L.error(TAG, "getGameList(), error! code:$code,msg:$msg")
+                callback()
+            }
+        })
+
     }
 
 

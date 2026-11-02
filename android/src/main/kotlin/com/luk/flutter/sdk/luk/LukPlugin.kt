@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import com.luk.flutter.sdk.luk.api.CFGame
 import com.luk.flutter.sdk.luk.api.CFLoginCallback
+import com.luk.flutter.sdk.luk.api.CFSDKInitCallback
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -13,15 +14,21 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.lang.ref.WeakReference
-
+import java.util.concurrent.atomic.AtomicBoolean
+import com.luk.flutter.sdk.luk.util.L
 /** LukPlugin */
 class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
+    private var channel: MethodChannel? = null
+    private var activityRef: WeakReference<Activity>? = null
+    private var isInitialized = AtomicBoolean(false)
+
     companion object {
-        var channel: MethodChannel? = null
-        private val handler = Handler(Looper.getMainLooper())
 
         const val TAG = "LukPlugin"
+
+        private var instanceRef: WeakReference<LukPlugin>? = null
+        private val handler = Handler(Looper.getMainLooper())
 
         /**
          * 给flutter发送数据
@@ -33,17 +40,23 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         ) {
             // 需要在主线程调用flutter
             handler.post {
-                channel?.invokeMethod(method, args, callback)
+                val plugin = instanceRef?.get()
+                if (plugin != null && plugin.channel != null) {
+                    plugin.channel?.invokeMethod(method, args, callback)
+                } else {
+                }
             }
         }
     }
 
-    private var activityRef: WeakReference<Activity>? = null
 
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-        if(channel == null) {
+
+        if(!isInitialized.getAndSet(true)) {
             channel = MethodChannel(flutterPluginBinding.binaryMessenger, "luk")
             channel?.setMethodCallHandler(this)
+            instanceRef =  WeakReference(this)
+
             flutterPluginBinding.platformViewRegistry.registerViewFactory(
                 "luk/luk_game_view",
                 LukPlatformViewFactory
@@ -53,44 +66,31 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     override fun onMethodCall(call: MethodCall, result: Result) {
         when (call.method) {
-            "setupSdk" -> {    //sdk初始化
-                toSetup(call, result)
-            }
-
-            "setUserInfo" -> {  //用户登录
-                toLogin(call, result)
-            }
-
-            "getGameList" -> {  //获取游戏列表
+            //sdk初始化
+            "setupSdk" -> {    toSetup(call, result)    }
+            //用户登录
+            "setUserInfo" -> {  toLogin(call, result)   }
+            //获取游戏列表
+            "getGameList" -> {
                 toGetGameList(result)
             }
-
-            "onPause" -> {  //切换到后台
-                toPauseGame()
-            }
-
-            "onResume" -> { //回到前台
-                toResumeGame()
-            }
-
-            "onDestroy" -> {    //销毁游戏
-                toDestroyGame()
-            }
-
-            "refreshUserInfo" -> {
-                CFGame.refreshUserInfo()
-            }
-
-            "gameStart" -> {
-                CFGame.gameStart()
-            }
-
+            //切换到后台
+            "onPause" -> {  toPauseGame()   }
+            //回到前台
+            "onResume" -> {  toResumeGame()  }
+            //销毁游戏
+            "onDestroy" -> {    toDestroyGame() }
+            //刷新用户数据
+            "refreshUserInfo" -> {  CFGame.refreshUserInfo()    }
+            //开始游戏
+            "gameStart" -> {    CFGame.gameStart()  }
+            //踢人
             "playerRemoveWithUid" -> {
                 val data = call.arguments as HashMap<*, *>
                 val uid = data["uid"] as String?
                 CFGame.playerRemoveWithUid(uid ?: "")
             }
-
+            //设置背景音乐
             "gameBackgroundMusicSet" -> {
                 val data = call.arguments as HashMap<*, *>
                 val mode = data["mode"] as Boolean?
@@ -103,9 +103,7 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 CFGame.gameSoundSet(mode ?: false)
             }
 
-            "terminateGame" -> {
-                CFGame.terminateGame()
-            }
+            "terminateGame" -> {    CFGame.terminateGame()  }
 
             "joinGame" -> {
                 val data = call.arguments as HashMap<*, *>
@@ -113,9 +111,7 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 CFGame.joinGame(position ?: 0)
             }
 
-            "quitGame" -> {
-                CFGame.quitGame()
-            }
+            "quitGame" -> {     CFGame.quitGame()   }
 
             "setPlayerRole" -> {
                 val data = call.arguments as HashMap<*, *>
@@ -123,13 +119,9 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 CFGame.setPlayerRole(role == 1)
             }
 
-            "pauseGame" -> {
-                CFGame.pauseGame()
-            }
+            "pauseGame" -> {    CFGame.pauseGame()  }
 
-            "playGame" -> {
-                CFGame.playGame()
-            }
+            "playGame" -> {     CFGame.playGame()   }
 
             "preloadGameList" -> {
                 try {
@@ -151,9 +143,7 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
             }
 
-            "releaseSDK" -> {
-                CFGame.releaseSDK()
-            }
+            "releaseSDK" -> {   CFGame.releaseSDK()     }
 
             "sentExtToGame" -> {
                 val data = call.arguments as HashMap<*, *>
@@ -173,21 +163,28 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 CFGame.setLanguage(language)
             }
 
-            "gameReload" -> {
-                CFGame.gameReload()
-            }
+            "gameReload" -> {    CFGame.gameReload()    }
 
-            "setGameVoicePath" -> {
-                val data = call.arguments as HashMap<*, *>
-                val path = data["path"] as String?
-                CFGame.setGameVoicePath(path)
-            }
+//            "setGameVoicePath" -> {
+//                val data = call.arguments as HashMap<*, *>
+//                val path = data["path"] as String?
+//                CFGame.setGameVoicePath(path)
+//            }
 
             "appNotifyStateChange" -> {
                 val data = call.arguments as HashMap<*, *>
                 val state = data["state"] as String?
                 val dataJson = data["dataJson"] as String?
                 CFGame.appNotifyStateChange(state, dataJson)
+            }
+
+            "getGameAudioList" -> {
+                toGetGameAudioList(call,result)
+            }
+
+            "updateUserCode" -> {
+                toUpdateUserCode(call,result)
+
             }
 
             else -> {
@@ -229,6 +226,35 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
     }
 
+    private fun toGetGameAudioList(call:MethodCall,  result: Result) {
+        val data = call.arguments as HashMap<*, *>
+        val gid = data["gid"] as Int
+        CFGame.getGameAudioList(gid) {
+
+            if (it?.isNotEmpty() == true) {
+                val list = ArrayList<HashMap<String, Any>>()
+                for (game in it) {
+                    val infoMap = HashMap<String, Any>()
+                    infoMap["url"] = game.url
+                    infoMap["name"] = game.name
+                    infoMap["type"] = game.type
+                    list.add(infoMap)
+                }
+                result.success(list)
+            } else {
+                result.success(ArrayList<HashMap<String, Any>>())
+            }
+        }
+    }
+
+    private fun toUpdateUserCode(call:MethodCall,  result: Result) {
+        val data = call.arguments as HashMap<*, *>
+        val code = data["code"] as String
+            CFGame.updateUserCode(code) {
+                result.success(0)
+            }
+    }
+
     private fun toLogin(
         call: MethodCall,
         result: Result
@@ -237,7 +263,7 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         val uid = data["uid"] as String
         val code = data["code"] as String
         CFLoginCallback.loginResult = result
-        CFGame.setUserInfo(uid, code)
+//        CFGame.setUserInfo(uid, code)
     }
 
     private fun toSetup(
@@ -246,11 +272,13 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     ) {
         val data = call.arguments as HashMap<*, *>
         val appId = data["appId"] as Int
+        val appKey = (data["appKey"] as String?) ?: ""
         val language = (data["language"] as String?) ?: "zh_CN"
         val area = (data["area"] as String?) ?: "cn"
+        val isGameSoundPlay = data["isGameSoundPlay"] as Boolean
         val isProduct = data["isProduct"] as Boolean
-        CFGame.initSdk(requireActivity().application, appId, isProduct, language, area)
-        result.success(0)
+        CFSDKInitCallback.initResult = result
+        CFGame.initSdk(requireActivity().application, appId, appKey, language, area, isGameSoundPlay, isProduct)
     }
 
     private fun requireActivity(): Activity {
@@ -260,6 +288,10 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
 //        channel.setMethodCallHandler(null)
+//        channel?.setMethodCallHandler(null)
+//        channel = null
+//        instanceRef?.clear()
+//        instanceRef = null
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
@@ -271,10 +303,11 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-
+        activityRef = WeakReference(binding.activity)
     }
 
     override fun onDetachedFromActivity() {
-
+        activityRef?.clear()
+        activityRef = null
     }
 }

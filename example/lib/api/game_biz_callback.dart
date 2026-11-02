@@ -6,4 +6,8 @@ class GameBizCallback implements IGameBizCallback {
 
   @override
   void onOpenChargePage() {}
+
+  @override
+  void openPlatformPage(String path, String data) {
+  }
 }

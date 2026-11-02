@@ -8,6 +8,10 @@ abstract class IGameLifeCallback {
     return true;
   }
 
+  bool onCanStartGame(String uid){
+    return true;
+  }
+
   /// 准备就绪
   void onGamePrepare(String uid){}
 
@@ -26,16 +30,26 @@ abstract class IGameLifeCallback {
   /// 游戏内购买结果回调
   void onGamePurchaseResult(int code, String orderId){}
 
+  ///  游戏状态回调
   void onGameStateChangeState(String state, String dataJson){}
 
+  /// 玩家状态回调
   void onPlayerStateChangeState(String uid, String state, String dataJson){}
 
+  /// 游戏音乐播放回调
   void onGameMusicStartPlay(int musicId, String musicUrl, bool isLoop){}
 
+  /// 游戏音乐停止回调
   void onGameMusicStopPlay(int musicId){}
 
+
+  /// 游戏音效播放回调
   void onGameEffectSoundStartPlay(int soundId, String soundUrl, bool isLoop){}
 
+  /// 游戏音效停止回调
   void onGameEffectSoundStopPlay(int effectId){}
+
+  /// 游戏截图回调
+  void onGameScreenShotBaseData(String base64String, String dataJson) {}
 }
 

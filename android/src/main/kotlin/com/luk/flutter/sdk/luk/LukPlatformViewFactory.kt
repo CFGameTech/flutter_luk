@@ -8,6 +8,7 @@ import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
 import com.luk.flutter.sdk.luk.util.L
+import com.cftech.gamelibrary.CFGameSDK.ICFSDKCallback
 
 /**
  * 视图状态机
@@ -29,6 +30,7 @@ object LukPlatformViewFactory : PlatformViewFactory(StandardMessageCodec.INSTANC
     var creationArgs: Map<*, *>? = null //初始化参数
     var gameInfo: CFGameList.GameInfo? = null    //游戏信息
     private var roomId: String = "" //房间id
+    private var gameConfig: String = ""
     private const val TAG = "LukPlatformViewFactory"
 
     fun getCreationRoomId(): String {
@@ -50,9 +52,15 @@ object LukPlatformViewFactory : PlatformViewFactory(StandardMessageCodec.INSTANC
         return ret
     }
 
+    fun getGameConfig(): String {
+        gameConfig = creationArgs?.get("gameConfig")?.toString() ?: ""
+        return gameConfig
+    }
+
     override fun create(context: Context, viewId: Int, args: Any?): PlatformView {
         val creationParams = args as Map<*, *>
         val roomId = creationParams["roomId"]?.toString() ?: ""
+        var gameConfig = creationParams["gameConfig"] ?: ""
         val gameInfo = CFGameList.GameInfo()
         gameInfo.g_id = creationParams["g_id"] as Int
         gameInfo.g_url = creationParams["g_url"] as String
@@ -60,11 +68,18 @@ object LukPlatformViewFactory : PlatformViewFactory(StandardMessageCodec.INSTANC
         gameInfo.g_icon = creationParams["g_icon"] as String
         gameInfo.g_name = creationParams["g_name"] as String
         gameInfo.screen_half = creationParams["screen_half"] as Int
+
+        val userId = creationParams["userId"] as String
+        val userCode = creationParams["userCode"] as String
+
+        L.info(TAG, "Lance!, gameConfig:${gameConfig}")
+
         if (LukPlatformViewFactory.gameInfo != null
             && gameView != null
             && LukPlatformViewFactory.gameInfo?.g_id == gameInfo.g_id
             && LukPlatformViewFactory.gameInfo?.g_url == gameInfo.g_url
             && roomId == this.roomId
+            && gameConfig == this.gameConfig
         ) { //满足条件(已经加载过游戏，并且是同一个房间的同一个游戏)则从挂起状态恢复
             L.info(
                 TAG,
@@ -79,7 +94,13 @@ object LukPlatformViewFactory : PlatformViewFactory(StandardMessageCodec.INSTANC
             creationArgs = creationParams
             gameView = LukPlatformView(context.applicationContext, creationParams)
             gameStatus = GameViewStatus.OnCreated
-            gameView?.loadGame(gameInfo.g_id, gameInfo.g_url)
+            gameView?.loadGame(gameInfo.g_id, gameInfo.g_url,userId,userCode,object : ICFSDKCallback {
+                    override fun onSuccess() {
+                    }
+
+                    override fun onError(code: Int, msg: String?) {
+                    }
+                })
             gameStatus = GameViewStatus.OnResumed
         }
         return gameView!!
@@ -111,6 +132,7 @@ object LukPlatformViewFactory : PlatformViewFactory(StandardMessageCodec.INSTANC
         gameInfo = null
         creationArgs = null
         roomId = ""
+        gameConfig = ""
         gameStatus = GameViewStatus.OnDestroyed
     }
 }

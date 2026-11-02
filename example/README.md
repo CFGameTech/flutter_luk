@@ -10,7 +10,7 @@
   luk:
     git:
       url: 'https://github.com/CFGameTech/flutter_luk.git'
-      ref: '1.0.16'
+      ref: '2.0.0'
 ```
 
 ### 1.1、在Android设备上接入luk flutter sdk，还需要进行以下操作：
@@ -49,12 +49,14 @@ Future setupSdk({required int appId, required String language, required String a
 
 其中：
 
-| 参数名        | 类型      | 说明                   | 获取方式/可选值                        |
-|------------|---------|----------------------|---------------------------------|
-| `appId`    | int     | 接入方应用的唯一标识符（游戏/服务ID） | 联系平台对接人员获取（例如：`123456`）         |
-| `language` | String  | 指定游戏内使用的语言           | 需使用预定义的多语言列表值                   |
-| `area`     | String  | 指定正式服服务器区域           | 参考文档中的服务器区域划分                   |
-| `product`  | boolean | 环境标识，决定是否连接生产环境      | `true`表示生产环境（正式服），`false`表示测试环境 |
+| 参数名               | 类型      | 说明                   | 获取方式/可选值                        |
+|-------------------|---------|----------------------|---------------------------------|
+| `appId`           | int     | 接入方应用的唯一标识符（游戏/服务ID） | 联系平台对接人员获取（例如：`123456`）         |
+| `appKey`          | String  | appId对应的appKey       | 联系平台对接人员获取（例如：`abcdef`）         |
+| `language`        | String  | 指定游戏内使用的语言           | 需使用预定义的多语言列表值                   |
+| `area`            | String  | 指定正式服服务器区域           | 参考文档中的服务器区域划分                   |
+| `isGameSoundPlay` | boolean | 是否需要游戏播放音频           | `true`表示需要播放，`false`表示游戏不播放音频   |
+| `isProduct`       | boolean | 环境标识，决定是否连接生产环境      | `true`表示生产环境（正式服），`false`表示测试环境 |
 
 >
 语言和区域参考：[https://wiki.luk.live/docs/client-api/init](https://wiki.luk.live/docs/client-api/init)
@@ -63,7 +65,7 @@ Future setupSdk({required int appId, required String language, required String a
 
 ```dart
 
-await Luk.instance.setupSdk(appId: 1013140, language: "zh_CN", area: "cn", isProduct: true);
+await Luk.instance.setupSdk(appId: 1013140, appKey: "4c2958117d1ae41831812bf6805c", language: "zh_CN", area: "cn",isGameSoundPlay: true, isProduct: true);
 
 ```
 
@@ -73,39 +75,22 @@ await Luk.instance.setupSdk(appId: 1013140, language: "zh_CN", area: "cn", isPro
 * sdk生命周期相关业务回调：参考[这里](lib/page/home_page.dart#L39)；
 * sdk日志输出回调：参考[这里](lib/page/home_page.dart#L40)；
 
-### 2.3、设置用户信息（用户登录）：
-
-```dart
-
-Future<bool> setUserInfo({required String uid, required String verifyCode});
-
-```
-
-调用示例参考[这里](lib/page/home_page.dart#L44)
-
-```dart
-
-bool _loginSuccess = await Luk.instance.setUserInfo(uid: "123456", verifyCode: "");
-```
-
-> 此处返回_loginSuccess为true则表示登录成功
-
-### 2.4、加载游戏列表：
+### 2.3、加载游戏列表：
 
 参考[这里](lib/page/home_page.dart#L47)，此时将能获取到游戏列表数据，用于后续的的展示以及调起小游戏界面；
 
-### 2.5、展示游戏列表：
+### 2.4、展示游戏列表：
 
 参考[这里](lib/page/home_page.dart#L82)
 ，UI界面可以参考示例的[GameListSheet](lib/sheet/game_list_sheet.dart)，也可以完全可以自己定义；
 
-### 2.6、调起小游戏界面：
+### 2.5、调起小游戏界面：
 
 * 参考[GamePage](lib/page/game_page.dart)
 * [LukGameView]()的用法参考[这里](lib/page/game_page.dart#L44),他需要一个[LukGameController](https://gitee.com/wys2018/luk_sdk/blob/master/lib/view/luk_game_controller.dart)
   ，用于控制游戏界面的生命周期流程；
 
-### 2.7、关于[LukGameController](https://gitee.com/wys2018/luk_sdk/blob/master/lib/view/luk_game_controller.dart)
+### 2.6、关于[LukGameController](https://gitee.com/wys2018/luk_sdk/blob/master/lib/view/luk_game_controller.dart)
 
 有以下几个关键方法：
 
