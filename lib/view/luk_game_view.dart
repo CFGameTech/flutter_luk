@@ -55,6 +55,8 @@ class _LukGameViewState extends State<LukGameView> {
       creationParams["height"] = widget.gameWindowSize.height;
       creationParams["width"] = widget.gameWindowSize.width;
       creationParams["gameConfig"] = widget.controller.gameConfig;
+      creationParams["userId"] = widget.controller.userId;
+      creationParams["userCode"] = widget.controller.userCode;
       if (widget.controller.initGameInfo != null) {}
       var gameInfo = initGameInfo.toMap();
       for (String key in gameInfo.keys) {

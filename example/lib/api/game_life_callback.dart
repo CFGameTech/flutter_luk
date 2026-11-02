@@ -48,4 +48,10 @@ class GameLifeCallback implements IGameLifeCallback {
   @override
   void onGameScreenShotBaseData(String base64String, String dataJson) {}
 
+  @override
+  bool onCanStartGame(String uid) {
+    // TODO: implement onCanStartGame
+    return true;
+  }
+
 }

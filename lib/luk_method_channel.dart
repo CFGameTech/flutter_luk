@@ -4,11 +4,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:luk/api/i_game_biz_callback.dart';
 import 'package:luk/api/i_game_life_callback.dart';
+import 'package:luk/api/i_game_load_callback.dart';
 import 'package:luk/api/i_game_logger.dart';
 import 'package:luk/api/i_login_callback.dart';
+import 'package:luk/api/i_init_callback.dart';
 import 'package:luk/api/i_game_rtc_callback.dart';
 import 'package:luk/api/i_preload_game_callback.dart';
 import 'package:luk/api/i_report_stats_event_callback.dart';
+import 'package:luk/api/i_update_user_code_callback.dart';
+import 'package:luk/bean/game_audio_info.dart';
 import 'package:luk/bean/game_info.dart';
 import 'package:luk/util/result_util.dart';
 
@@ -17,20 +21,34 @@ import 'luk_platform_interface.dart';
 /// An implementation of [LukPlatform] that uses method channels.
 class MethodChannelLuk extends LukPlatform {
   /// The method channel used to interact with the native platform.
+  // 原生调用flutter方法
   @visibleForTesting
   final methodChannel = const MethodChannel('luk');
 
   IGameBizCallback? gameBizCallback;
   IGameLifeCallback? gameLifeCallback;
   IGameLogger? logger;
-  ILoginCallback? loginCallback;
+  // ILoginCallback? loginCallback;
   IGameRTCCallback? rtcCallback;
   IPreloadGameCallback? preloadGameCallback;
   IReportStatsEventCallback? statsEventCallback;
 
+  ISDKInitCallback? sdkInitCallback;
+  IUpdateUserCodeCallback? updateUserCodeCallback;
+  IGameLoadCallback? gameLoadCallback;
+
+
   MethodChannelLuk() {
     methodChannel.setMethodCallHandler((call) async {
       switch (call.method) {
+        case "onSDKInitSuccess":
+          sdkInitCallback?.onSuccess();
+          break;
+        case "onSDKInitFail":
+          var code = call.arguments["code"] as int?;
+          var msg = call.arguments["msg"] as String?;
+          sdkInitCallback?.onFail(code??-1, msg??"");
+          break;
         case "onOpenChargePage":
           gameBizCallback?.onOpenChargePage();
           break;
@@ -49,6 +67,9 @@ class MethodChannelLuk extends LukPlatform {
           var uid = call.arguments["uid"] as String?;
           var seatIndex = call.arguments["seatIndex"] as int?;
           return gameLifeCallback?.onPreJoinGame(uid ?? "", seatIndex ?? -1) ?? true;
+        case "onCanStartGame":
+          var uid = call.arguments["uid"] as String?;
+          return gameLifeCallback?.onCanStartGame(uid ?? "") ?? true;
         case "onGamePrepare":
           var uid = call.arguments["uid"] as String?;
           gameLifeCallback?.onGamePrepare(uid ?? "");
@@ -124,18 +145,18 @@ class MethodChannelLuk extends LukPlatform {
           var effectId = call.arguments["effectId"] as int?;
           gameLifeCallback?.onGameEffectSoundStopPlay(effectId ?? 0);
           break;
-        case "onLoginSuccess":
-          loginCallback?.onLoginSuccess();
-          break;
-        case "onLoginFail":
-          var code = call.arguments["code"] as int?;
-          var msg = call.arguments["msg"] as String?;
-          loginCallback?.onLoginFail(code ?? -1, msg ?? "");
-          break;
-        case "onRefreshToken":
-          var token = call.arguments["token"] as String?;
-          loginCallback?.onRefreshToken(token ?? "");
-          break;
+        // case "onLoginSuccess":
+        //   loginCallback?.onLoginSuccess();
+        //   break;
+        // case "onLoginFail":
+        //   var code = call.arguments["code"] as int?;
+        //   var msg = call.arguments["msg"] as String?;
+        //   loginCallback?.onLoginFail(code ?? -1, msg ?? "");
+        //   break;
+        // case "onRefreshToken":
+        //   var token = call.arguments["token"] as String?;
+        //   loginCallback?.onRefreshToken(token ?? "");
+        //   break;
         case "onCFGamePushSelfRTC":
           var push = call.arguments["push"] as bool?;
           rtcCallback?.onCFGamePushSelfRTC(push ?? false);
@@ -162,16 +183,17 @@ class MethodChannelLuk extends LukPlatform {
   }
 
   @override
-  Future setupSdk({required int appId, required String language, required String area, required bool isProduct}) {
-    return methodChannel
-        .invokeMethod("setupSdk", {"appId": appId, "language": language, "area": area, "isProduct": isProduct});
-  }
-
-  @override
-  Future<bool> setUserInfo({required String uid, required String verifyCode}) async {
-    dynamic result = await methodChannel.invokeMethod("setUserInfo", {"uid": uid, "code": verifyCode});
+  Future<bool> setupSdk({required int appId, required String appKey, required String language, required String area, required bool isGameSoundPlay, required bool isProduct}) async {
+    dynamic result = await methodChannel
+        .invokeMethod("setupSdk", {"appId": appId, "appKey":appKey, "language": language, "area": area, "isGameSoundPlay":isGameSoundPlay, "isProduct": isProduct});
     return ResultUtil.getResult(result).isSuccess();
   }
+
+  // @override
+  // Future<bool> setUserInfo({required String uid, required String verifyCode}) async {
+  //   dynamic result = await methodChannel.invokeMethod("setUserInfo", {"uid": uid, "code": verifyCode});
+  //   return ResultUtil.getResult(result).isSuccess();
+  // }
 
   @override
   Future<List<GameInfo>> getGameList() async {
@@ -222,9 +244,16 @@ class MethodChannelLuk extends LukPlatform {
   }
 
   @override
-  void setLoginCallback(ILoginCallback callback) {
-    loginCallback = callback;
+  void setSDKInitCallback(ISDKInitCallback callback) {
+    sdkInitCallback = callback;
   }
+
+  // @override
+  // void setLoginCallback(ILoginCallback callback) {
+  //   loginCallback = callback;
+  // }
+
+
 
   @override
   void setRTCCallback(IGameRTCCallback callback) {
@@ -363,6 +392,28 @@ class MethodChannelLuk extends LukPlatform {
     methodChannel.invokeMethod("appNotifyStateChange", {
       "state": state,
       "dataJson": dataJson,
+    });
+  }
+
+
+  @override
+  Future<List<GameAudioInfo>> getGameAudioList(int gid) async {
+    dynamic result = await methodChannel.invokeMethod("getGameAudioList",{"gid":gid});
+    if (result is List) {
+      List<GameAudioInfo> list = [];
+      for (Map item in result) {
+        list.add(GameAudioInfo.fromMap(item));
+      }
+      return list;
+    }
+    return [];
+  }
+
+  @override
+  void updateUserCode(String code,IUpdateUserCodeCallback callback)  {
+    updateUserCodeCallback = callback;
+    methodChannel.invokeMethod("updateUserCode", {
+      "code": code,
     });
   }
 }

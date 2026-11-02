@@ -10,8 +10,10 @@ object CFGameLifecycle : ICFGameLifecycle {
     private const val TAG = "CFGameLifecycle"
 
     private var canJoinGame = false     //是否可以直接加入游戏
+    private var isWaitingForCanJoinGameResult = false
 
-    private var isWaitingForFlutterResult = false
+    private var canStartGame = false    //  是否可以直接开始游戏
+    private var isWaitingForCanStartGameResult = false
 
     override fun onGameLoadFail() {
         L.info(TAG, "onGameLoadFail()")
@@ -52,13 +54,13 @@ object CFGameLifecycle : ICFGameLifecycle {
         L.info(TAG, "onPreJoinGame(),uid:$p0, seatIndex:$p1")
 
         // 如果正在等待 Flutter 返回，直接拒绝（防止重复调用）
-        if (isWaitingForFlutterResult) {
+        if (isWaitingForCanJoinGameResult) {
             L.info(TAG, "onPreJoinGame() - already waiting for flutter result, return false")
             return false
         }
 
         // 每次都询问 Flutter
-        isWaitingForFlutterResult = true
+        isWaitingForCanJoinGameResult = true
         val params = hashMapOf<String, Any>(
             "uid" to (p0 ?: ""),
             "seatIndex" to p1
@@ -67,7 +69,7 @@ object CFGameLifecycle : ICFGameLifecycle {
         LukPlugin.callFlutter("onPreJoinGame", params, object : Result {
             override fun success(result: Any?) {
                 L.info(TAG, "onPreJoinGame(),uid:$p0, result:$result")
-                isWaitingForFlutterResult = false
+                isWaitingForCanJoinGameResult = false
                 if (result == true) {
                     CFGame.joinGame(p1)
                 }
@@ -75,12 +77,49 @@ object CFGameLifecycle : ICFGameLifecycle {
 
             override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
                 L.error(TAG, "onPreJoinGame(),error! errorCode$errorCode,errorMessage:$errorMessage")
-                isWaitingForFlutterResult = false
+                isWaitingForCanJoinGameResult = false
             }
 
             override fun notImplemented() {
                 L.error(TAG, "onPreJoinGame(),notImplemented!")
-                isWaitingForFlutterResult = false
+                isWaitingForCanJoinGameResult = false
+            }
+        })
+
+        return false  // 原生层先返回 false，等 Flutter 回调后再真正 join
+    }
+
+    override fun onCanStartGame(p0: String?): Boolean {
+        L.info(TAG, "onCanStartGame(),uid:$p0")
+
+        // 如果正在等待 Flutter 返回，直接拒绝（防止重复调用）
+        if (isWaitingForCanStartGameResult) {
+            L.info(TAG, "onCanStartGame() - already waiting for flutter result, return false")
+            return false
+        }
+
+        isWaitingForCanStartGameResult = true
+        val params = hashMapOf<String, Any>(
+            "uid" to (p0 ?: "")
+        )
+
+        LukPlugin.callFlutter("onCanStartGame", params, object : Result {
+            override fun success(result: Any?) {
+                L.info(TAG, "onCanStartGame(),uid:$p0, result:$result")
+                isWaitingForCanStartGameResult = false
+                if (result == true) {
+                    CFGame.gameStart()
+                }
+            }
+
+            override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
+                L.error(TAG, "onCanStartGame(),error! errorCode$errorCode,errorMessage:$errorMessage")
+                isWaitingForCanStartGameResult = false
+            }
+
+            override fun notImplemented() {
+                L.error(TAG, "onCanStartGame(),notImplemented!")
+                isWaitingForCanStartGameResult = false
             }
         })
 

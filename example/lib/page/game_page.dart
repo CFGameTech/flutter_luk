@@ -29,7 +29,7 @@ class _GamePageState extends State<GamePage> {
     _gameInfo = widget.gameInfo;
     _gameConfig = widget.gameConfig;
     _gameController = LukGameController(
-        initGameInfo: _gameInfo, roomId: "200017", isRoomOwner: true, gameConfig:_gameConfig);
+        initGameInfo: _gameInfo, roomId: "200017", isRoomOwner: true, gameConfig:_gameConfig,userId: "123332", userCode: "");
   }
 
   @override

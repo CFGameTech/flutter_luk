@@ -8,6 +8,7 @@ import io.flutter.plugin.common.StandardMessageCodec
 import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
 import com.luk.flutter.sdk.luk.util.L
+import com.cftech.gamelibrary.CFGameSDK.ICFSDKCallback
 
 /**
  * 视图状态机
@@ -68,6 +69,9 @@ object LukPlatformViewFactory : PlatformViewFactory(StandardMessageCodec.INSTANC
         gameInfo.g_name = creationParams["g_name"] as String
         gameInfo.screen_half = creationParams["screen_half"] as Int
 
+        val userId = creationParams["userId"] as String
+        val userCode = creationParams["userCode"] as String
+
         L.info(TAG, "Lance!, gameConfig:${gameConfig}")
 
         if (LukPlatformViewFactory.gameInfo != null
@@ -90,7 +94,13 @@ object LukPlatformViewFactory : PlatformViewFactory(StandardMessageCodec.INSTANC
             creationArgs = creationParams
             gameView = LukPlatformView(context.applicationContext, creationParams)
             gameStatus = GameViewStatus.OnCreated
-            gameView?.loadGame(gameInfo.g_id, gameInfo.g_url)
+            gameView?.loadGame(gameInfo.g_id, gameInfo.g_url,userId,userCode,object : ICFSDKCallback {
+                    override fun onSuccess() {
+                    }
+
+                    override fun onError(code: Int, msg: String?) {
+                    }
+                })
             gameStatus = GameViewStatus.OnResumed
         }
         return gameView!!

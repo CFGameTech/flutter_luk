@@ -40,9 +40,12 @@ public class LukGameViewFactory : NSObject, FlutterPlatformViewFactory {
        var height:CGFloat = 0
        var gameConfig:String = ""
 
+       var userId:String = ""
+       var userCode:String = ""
+
        if let params = args as? [String: Any] {
            gameModel.g_url = params["g_url"] as? String ?? ""
-           gameModel.g_id =  params["g_id"] as? Int ?? 0
+           gameModel.g_id =  params["g_id"] as? Int32 ?? 0
            gameModel.g_icon = params["g_icon"] as? String ?? ""
            roomId = params["roomId"] as? String ?? ""
            isRoomOwner = params["isRoomOwner"] as? Bool ?? false
@@ -54,6 +57,8 @@ public class LukGameViewFactory : NSObject, FlutterPlatformViewFactory {
            width = params["width"] as? CGFloat ?? 0
            height = params["height"] as? CGFloat ?? 0
            gameConfig = params["gameConfig"] as? String ?? ""
+           userId = params["userId"] as? String ?? ""
+           userCode = params["userCode"] as? String ?? ""
        }
        
        if let m = self.gameModel, let v = lukGameView  {
@@ -76,7 +81,7 @@ public class LukGameViewFactory : NSObject, FlutterPlatformViewFactory {
        self.isRoomOwner = isRoomOwner
        self.gameConfig = gameConfig
        self.gameModel = gameModel
-       let view = LukGameView(newFrame, viewId: viewId, gameModel: gameModel, registrarInstance: registrarInstance)
+       let view = LukGameView(newFrame, viewId: viewId, gameModel: gameModel, userId: userId, userCode: userCode, registrarInstance: registrarInstance)
        lukGameView = view
       return view
    }

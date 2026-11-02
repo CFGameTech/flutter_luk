@@ -33,7 +33,7 @@ var cf_game={
     },
     OpenApi:{
         getBaseInfo: function (callback,dataJson) {
-                console.log("sdk getBaseInfo 443");
+                console.log("sdk getBaseInfo 1846");
                 console.log(window.webkit.messageHandlers);
                 var invokeId = getInvokeId();
                 cfgCallJsBacks[invokeId] = callback;
@@ -44,7 +44,6 @@ var cf_game={
                     }
                 };
                 CFGameOpenApi.getBaseInfo.postMessage(message);
-
         },
         
         getWindowSafeArea: function (callback) {
@@ -69,7 +68,6 @@ var cf_game={
             };
             CFGameOpenApi.openPlatformPage.postMessage(message);
         },
-
         closeGamePage: function () {
             var invokeId = getInvokeId();
             console.log("sdk closeGamePage");
@@ -102,6 +100,18 @@ var cf_game={
                 }
             };
             CFGameLife.preJoinGame.postMessage(message);
+        },
+        canStartGame(uid, callback) {
+            console.log("sdk canStartGame");
+            var invokeId = getInvokeId();
+            cfgCallJsBacks[invokeId] = callback;
+            var message = {
+                invokeId:invokeId,
+                data:{
+                    uid:uid,
+                }
+            };
+            CFGameLife.canStartGame.postMessage(message);
         },
         onSeatAvatarTouch(userid, seat) {
             console.log("sdk onSeatAvatarTouch");
@@ -224,8 +234,7 @@ var cf_game={
                 }
             };
             CFGameLife.gameSendScreenshot.postMessage(message);
-        }
-
+        },
     }
 };
 

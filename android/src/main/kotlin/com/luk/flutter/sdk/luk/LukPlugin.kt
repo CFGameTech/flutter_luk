@@ -5,6 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import com.luk.flutter.sdk.luk.api.CFGame
 import com.luk.flutter.sdk.luk.api.CFLoginCallback
+import com.luk.flutter.sdk.luk.api.CFSDKInitCallback
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -14,6 +15,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicBoolean
+import com.luk.flutter.sdk.luk.util.L
 /** LukPlugin */
 class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
@@ -69,7 +71,9 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
             //用户登录
             "setUserInfo" -> {  toLogin(call, result)   }
             //获取游戏列表
-            "getGameList" -> {  toGetGameList(result)   }
+            "getGameList" -> {
+                toGetGameList(result)
+            }
             //切换到后台
             "onPause" -> {  toPauseGame()   }
             //回到前台
@@ -99,9 +103,7 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 CFGame.gameSoundSet(mode ?: false)
             }
 
-            "terminateGame" -> {
-                CFGame.terminateGame()
-            }
+            "terminateGame" -> {    CFGame.terminateGame()  }
 
             "joinGame" -> {
                 val data = call.arguments as HashMap<*, *>
@@ -109,9 +111,7 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 CFGame.joinGame(position ?: 0)
             }
 
-            "quitGame" -> {
-                CFGame.quitGame()
-            }
+            "quitGame" -> {     CFGame.quitGame()   }
 
             "setPlayerRole" -> {
                 val data = call.arguments as HashMap<*, *>
@@ -119,13 +119,9 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 CFGame.setPlayerRole(role == 1)
             }
 
-            "pauseGame" -> {
-                CFGame.pauseGame()
-            }
+            "pauseGame" -> {    CFGame.pauseGame()  }
 
-            "playGame" -> {
-                CFGame.playGame()
-            }
+            "playGame" -> {     CFGame.playGame()   }
 
             "preloadGameList" -> {
                 try {
@@ -147,9 +143,7 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
             }
 
-            "releaseSDK" -> {
-                CFGame.releaseSDK()
-            }
+            "releaseSDK" -> {   CFGame.releaseSDK()     }
 
             "sentExtToGame" -> {
                 val data = call.arguments as HashMap<*, *>
@@ -169,21 +163,28 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 CFGame.setLanguage(language)
             }
 
-            "gameReload" -> {
-                CFGame.gameReload()
-            }
+            "gameReload" -> {    CFGame.gameReload()    }
 
-            "setGameVoicePath" -> {
-                val data = call.arguments as HashMap<*, *>
-                val path = data["path"] as String?
-                CFGame.setGameVoicePath(path)
-            }
+//            "setGameVoicePath" -> {
+//                val data = call.arguments as HashMap<*, *>
+//                val path = data["path"] as String?
+//                CFGame.setGameVoicePath(path)
+//            }
 
             "appNotifyStateChange" -> {
                 val data = call.arguments as HashMap<*, *>
                 val state = data["state"] as String?
                 val dataJson = data["dataJson"] as String?
                 CFGame.appNotifyStateChange(state, dataJson)
+            }
+
+            "getGameAudioList" -> {
+                toGetGameAudioList(call,result)
+            }
+
+            "updateUserCode" -> {
+                toUpdateUserCode(call,result)
+
             }
 
             else -> {
@@ -225,6 +226,35 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         }
     }
 
+    private fun toGetGameAudioList(call:MethodCall,  result: Result) {
+        val data = call.arguments as HashMap<*, *>
+        val gid = data["gid"] as Int
+        CFGame.getGameAudioList(gid) {
+
+            if (it?.isNotEmpty() == true) {
+                val list = ArrayList<HashMap<String, Any>>()
+                for (game in it) {
+                    val infoMap = HashMap<String, Any>()
+                    infoMap["url"] = game.url
+                    infoMap["name"] = game.name
+                    infoMap["type"] = game.type
+                    list.add(infoMap)
+                }
+                result.success(list)
+            } else {
+                result.success(ArrayList<HashMap<String, Any>>())
+            }
+        }
+    }
+
+    private fun toUpdateUserCode(call:MethodCall,  result: Result) {
+        val data = call.arguments as HashMap<*, *>
+        val code = data["code"] as String
+            CFGame.updateUserCode(code) {
+                result.success(0)
+            }
+    }
+
     private fun toLogin(
         call: MethodCall,
         result: Result
@@ -233,7 +263,7 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
         val uid = data["uid"] as String
         val code = data["code"] as String
         CFLoginCallback.loginResult = result
-        CFGame.setUserInfo(uid, code)
+//        CFGame.setUserInfo(uid, code)
     }
 
     private fun toSetup(
@@ -242,11 +272,13 @@ class LukPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
     ) {
         val data = call.arguments as HashMap<*, *>
         val appId = data["appId"] as Int
+        val appKey = (data["appKey"] as String?) ?: ""
         val language = (data["language"] as String?) ?: "zh_CN"
         val area = (data["area"] as String?) ?: "cn"
+        val isGameSoundPlay = data["isGameSoundPlay"] as Boolean
         val isProduct = data["isProduct"] as Boolean
-        CFGame.initSdk(requireActivity().application, appId, isProduct, language, area)
-        result.success(0)
+        CFSDKInitCallback.initResult = result
+        CFGame.initSdk(requireActivity().application, appId, appKey, language, area, isGameSoundPlay, isProduct)
     }
 
     private fun requireActivity(): Activity {

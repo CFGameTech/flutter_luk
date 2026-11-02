@@ -66,6 +66,15 @@ static NSString *cf_game_call_game_click_help_btn = @"cf_game_call_game_click_he
 static NSString *cf_game_call_game_exception_msg = @"cf_game_call_game_exception_msg";
 //  游戏加载进度上报
 static NSString *cf_game_call_game_load_progress = @"cf_game_call_game_load_progress";
+//  游戏重连成功通知
+static NSString *cf_game_call_game_reconnect_success = @"cf_game_call_game_reconnect_success";
+//  用户点击游戏按钮通知
+static NSString *cf_game_call_game_button_click = @"cf_game_call_game_button_click";
+//  游戏弹窗关闭通知
+static NSString *cf_game_call_game_popup_close = @"cf_game_call_game_popup_close";
+//  游戏加载信息
+static NSString *cf_game_call_game_load_game_info = @"cf_game_call_game_load_game_info";
+
 
 #pragma mark - 玩家状态上报
 //  加入状态
