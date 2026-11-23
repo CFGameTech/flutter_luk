@@ -312,7 +312,8 @@ NS_ASSUME_NONNULL_BEGIN
  *  加载全屏游戏
  *  @param gameId : 游戏id
  *  @param url : 游戏url
-
+ *  @param userId 用户id
+ *  @param code 用户code
  */
 +(void)startFullWindowGame:(UIViewController *)vc gameId:(int)gameId url:(NSString *)url userId:(NSString *)userId userCode:(NSString *)code onSuccess:(SDKOnSuccessBlock)success onFailure:(SDKOnFailureBlock)failure;
 

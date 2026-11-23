@@ -74,7 +74,8 @@ static NSString *cf_game_call_game_button_click = @"cf_game_call_game_button_cli
 static NSString *cf_game_call_game_popup_close = @"cf_game_call_game_popup_close";
 //  游戏加载信息
 static NSString *cf_game_call_game_load_game_info = @"cf_game_call_game_load_game_info";
-
+//  token过期通知
+static NSString *cf_game_call_token_expire = @"cf_game_call_token_expire";
 
 #pragma mark - 玩家状态上报
 //  加入状态
